@@ -1,0 +1,42 @@
+<section class="py-12 bg-white">
+  <div class="max-w-screen-xl mx-auto px-4">
+    
+    <div class="flex flex-col lg:flex-row bg-[#FAF9F6] rounded-[2rem] overflow-hidden shadow-sm border border-stone-100">
+      
+      <div class="lg:w-1/4 bg-[#f59e0b] p-10 flex flex-col justify-center relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full bg-[#1e3a5f]/5 pointer-events-none"></div>
+        
+        <h2 class="text-3xl font-black text-[#1e3a5f] leading-tight relative z-10 uppercase tracking-tighter">
+          {{ infoPrincipal.titulo }}
+        </h2>
+        <p class="mt-4 text-[#1e3a5f]/80 text-[11px] leading-relaxed font-bold uppercase tracking-wider relative z-10">
+          {{ infoPrincipal.descripcion }}
+        </p>
+      </div>
+
+      <div class="lg:w-3/4 p-10 md:p-14 flex items-center">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12 w-full">
+          
+          @for (item of listaBeneficios; track item.id) {
+            <div class="flex flex-col items-center text-center group">
+              <div class="mb-5 transition-transform duration-300 group-hover:-translate-y-1 text-[#1e3a5f]">
+                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" [attr.d]="item.iconPath" />
+                </svg>
+              </div>
+
+              <h3 class="text-sm font-black text-[#1e3a5f] mb-2 tracking-tight uppercase">
+                {{ item.titulo }}
+              </h3>
+              <p class="text-stone-500 text-[11px] leading-relaxed max-w-[180px] font-medium">
+                {{ item.descripcion }}
+              </p>
+            </div>
+          }
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

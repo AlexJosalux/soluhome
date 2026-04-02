@@ -12,11 +12,11 @@ export class Footer {
   year: number = new Date().getFullYear();
 
   enlaces= [
-    {texto: 'Home', link: ''},
-    {texto: 'Consultas', link: '#'},
-    {texto: 'Servicios', link: '#'},
-    {texto: 'Mascotas', link: '#'},
-    {texto: 'Contacto', link: '#'},
+    {texto: 'Home', link: '/home'},
+    {texto: 'Consultas', link: '/consultas'},
+    {texto: 'Servicios', link: '/servicios'},
+    {texto: 'Productos', link: '/productos'},
+    {texto: 'Nosotros', link: '/nosotros'},
   ]
 
 }

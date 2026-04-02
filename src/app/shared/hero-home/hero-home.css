@@ -1,0 +1,38 @@
+.btn-elegant-sh {
+  /* Estructura del recuadro */
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 28px;
+  background-color: transparent; /* Fondo transparente inicial */
+  color: #2563eb; /* Texto azul para contrastar con el fondo blanco/claro */
+  border: 2px solid #2563eb; /* El recuadro sólido azul */
+  border-radius: 8px; /* Bordes ligeramente redondeados para elegancia */
+  
+  /* Tipografía */
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  
+  /* Animación */
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+/* Efecto al pasar el mouse (Hover) */
+.btn-elegant-sh:hover {
+  background-color: #2563eb; /* Se llena de color azul */
+  color: #ffffff; /* El texto cambia a blanco para legibilidad */
+  transform: translateY(-2px); /* Pequeño salto para feedback visual */
+  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3); /* Sombra suave azul */
+}
+
+/* Animación para el icono SVG dentro del botón */
+.btn-elegant-sh svg {
+  transition: transform 0.3s ease;
+}
+
+.btn-elegant-sh:hover svg {
+  transform: translateX(4px); /* El icono se mueve un poco a la derecha */
+}

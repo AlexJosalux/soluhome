@@ -1,1 +1,27 @@
-<app-formulario></app-formulario>
+<app-perfil [data]="perfil()"></app-perfil>
+
+<div class="container mx-auto p-6">
+
+  @if (esCliente()) {
+    <div class="bg-blue-50 p-6 rounded-[32px] border-2 border-blue-200">
+      <h3 class="text-xl font-black italic uppercase text-blue-900">Mis Pedidos</h3>
+      <p class="text-sm font-bold text-blue-700">Aquí verás el estado de tus mantenimientos.</p>
+      </div>
+  }
+
+  @if (esTecnico()) {
+    <div class="bg-amber-50 p-6 rounded-[32px] border-2 border-amber-200">
+      <h3 class="text-xl font-black italic uppercase text-amber-700">Servicios Asignados</h3>
+      <p class="text-sm font-bold text-amber-600">Revisa las tareas que tienes pendientes para hoy.</p>
+    </div>
+  }
+
+  @if (esAdmin()) {
+    <div class="bg-slate-900 p-8 rounded-[32px] text-white">
+      <h3 class="text-xl font-black italic uppercase text-blue-400">Panel de Administración</h3>
+      <p class="text-sm opacity-70">Control total de usuarios y servicios globales.</p>
+      <button class="mt-4 bg-blue-600 px-6 py-2 rounded-xl font-black uppercase text-[10px]">Gestionar Base de Datos</button>
+    </div>
+  }
+
+</div>

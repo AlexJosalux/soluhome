@@ -1,0 +1,56 @@
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+  
+  @for (item of listaProductos; track item.id) {
+    <div class="group bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 flex flex-col">
+      
+      <div class="relative h-60 bg-slate-100 overflow-hidden">
+        <span class="absolute top-4 left-4 z-10 bg-blue-600 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg">
+          {{ item.categoria }}
+        </span>
+
+        <img
+          [src]="item.imagen"
+          [alt]="item.nombre"
+          class="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700"
+        />
+        
+        <div class="absolute inset-0 bg-slate-900/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      </div>
+
+      <div class="p-6 flex flex-col flex-grow">
+        <div class="flex justify-between items-start mb-3">
+          <h3 class="text-lg font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors leading-tight">
+            {{ item.nombre }}
+          </h3>
+        </div>
+
+        <p class="text-sm text-slate-500 leading-relaxed line-clamp-2 mb-6 font-light">
+          {{ item.descripcion }}
+        </p>
+
+        <div class="mt-auto border-t border-slate-50 pt-5">
+          <div class="flex items-center justify-between mb-5">
+            <span class="text-2xl font-black text-slate-900">
+              ${{ item.precio }}
+            </span>
+            <span class="text-[11px] font-medium px-2 py-1 bg-slate-100 text-slate-500 rounded-md uppercase">
+              Stock: {{ item.stock }}
+            </span>
+          </div>
+
+          <button class="w-full rounded-xl bg-slate-900 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white hover:bg-blue-600 transition-all shadow-md active:scale-95">
+            Añadir al carrito
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+@if (listaProductos.length === 0) {
+  <div class="flex flex-col items-center justify-center py-20 bg-white rounded-[2rem] border-2 border-dashed border-slate-200">
+    <div class="text-5xl mb-4">📦</div>
+    <h3 class="text-xl font-bold text-slate-800">No hay productos disponibles</h3>
+    <p class="text-slate-500 mt-2">Estamos actualizando nuestro stock para ti.</p>
+  </div>
+}

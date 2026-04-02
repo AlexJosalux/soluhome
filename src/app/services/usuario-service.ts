@@ -9,7 +9,7 @@ import { Usuario } from '../models/usuario';
 export class UsuarioService {
   private http = inject(HttpClient);
 
-  private API_USUARIOS = 'https://vetone-42f39-default-rtdb.firebaseio.com';
+  private API_USUARIOS = 'https://soluhome-2a5d9-default-rtdb.firebaseio.com/';
 
 
   //Metodo GET
@@ -41,4 +41,10 @@ export class UsuarioService {
   deleteUsuario(id: string): Observable<Usuario>{
     return this.http.delete<Usuario>(`${this.API_USUARIOS}/users/${id}.json`);
   }
+  // Agrega este método dentro de tu UsuarioService
+getUsuarioById(id: string): Observable<Usuario> {
+  return this.http.get<Usuario>(`${this.API_USUARIOS}/users/${id}.json`).pipe(
+    map(res => ({ ...res, id }))
+  );
+}
 }

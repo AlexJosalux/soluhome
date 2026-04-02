@@ -1,0 +1,60 @@
+<div class="min-h-screen bg-slate-100 flex items-center justify-center p-4 font-sans text-black">
+  <div class="w-full max-w-[900px] h-[520px] bg-white rounded-[32px] shadow-2xl flex overflow-hidden border border-gray-200">
+    
+    <div class="w-1/2 bg-white flex flex-col items-center justify-center px-16">
+      <div class="w-full max-w-[320px]">
+        <h2 class="text-3xl font-black text-black mb-1 tracking-tighter italic text-center uppercase">Registro</h2>
+        <p class="text-blue-700 text-[10px] mb-8 text-center uppercase tracking-[0.3em] font-bold">Nueva Cuenta</p>
+        
+        <form (ngSubmit)="registrar()" #registroForm="ngForm" class="space-y-3">
+          <div class="flex gap-2">
+            <div class="w-1/2">
+              <label class="text-[9px] font-black text-black ml-1 uppercase mb-1 block">Nombre</label>
+              <input type="text" name="nombre" [(ngModel)]="nuevoUsuario.nombre" placeholder="Nombre" required
+                class="w-full px-4 py-3 bg-white border-2 border-blue-900/60 rounded-xl focus:border-blue-600 outline-none text-[11px] text-black font-bold shadow-sm">
+            </div>
+            <div class="w-1/2">
+              <label class="text-[9px] font-black text-black ml-1 uppercase mb-1 block">Apellido</label>
+              <input type="text" name="apellido" [(ngModel)]="nuevoUsuario.apellido" placeholder="Apellido" required
+                class="w-full px-4 py-3 bg-white border-2 border-blue-900/60 rounded-xl focus:border-blue-600 outline-none text-[11px] text-black font-bold shadow-sm">
+            </div>
+          </div>
+          
+          <div class="space-y-1">
+            <label class="text-[9px] font-black text-black ml-1 uppercase mb-1 block">Email</label>
+            <input type="email" name="email" [(ngModel)]="nuevoUsuario.email" placeholder="tu@correo.com" required
+              class="w-full px-4 py-3 bg-white border-2 border-blue-900/60 rounded-xl focus:border-blue-600 outline-none text-[11px] text-black font-bold shadow-sm">
+          </div>
+          
+          <div class="space-y-1">
+            <label class="text-[9px] font-black text-black ml-1 uppercase mb-1 block">Contraseña</label>
+            <input type="password" name="password" [(ngModel)]="nuevoUsuario.password" placeholder="••••••••" required
+              class="w-full px-4 py-3 bg-white border-2 border-blue-900/60 rounded-xl focus:border-blue-600 outline-none text-[11px] text-black font-bold shadow-sm">
+          </div>
+
+          <button type="submit" [disabled]="!registroForm.form.valid"
+            class="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white text-[11px] font-black rounded-2xl shadow-lg shadow-blue-200 transition-all active:scale-95 mt-4 uppercase tracking-widest border-none italic">
+            Crear Perfil
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-gradient-to-br from-white via-blue-50 to-blue-600 flex flex-col items-center justify-center p-8 text-center border-l border-gray-100">
+      <img src="assets/images/logosolu.png" alt="SoluHome" class="w-72 mb-6 drop-shadow-2xl">
+      
+      <div class="relative z-10">
+        <h3 class="text-xl font-black text-blue-900 italic tracking-tight uppercase">¿Ya eres parte?</h3>
+        <p class="text-blue-800 text-[11px] font-bold leading-relaxed max-w-[220px] mx-auto mt-2">
+          Inicia sesión para gestionar tus servicios técnicos.
+        </p>
+        
+        <button type="button" routerLink="/login"
+          class="mt-8 px-12 py-3 border-2 border-blue-900 text-blue-900 text-[10px] font-black rounded-full hover:bg-blue-900 hover:text-white transition-all active:scale-95 uppercase tracking-[0.2em]">
+          Iniciar Sesión
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

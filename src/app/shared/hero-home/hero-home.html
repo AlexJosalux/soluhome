@@ -1,30 +1,60 @@
-<header class="bg-gradient-to-br from-[#FDFBF7] via-[#F5F1EA] to-[#EBE3D5]">
-    
-    <div class="container px-6 py-16 mx-auto">
-        <div class="items-center lg:flex">
-            <div class="w-full lg:w-1/2">
-                <div class="lg:max-w-lg">
-                    <h1 class="text-3xl font-bold text-stone-800 lg:text-5xl leading-tight">
-                        {{titulo}}<br> 
-                        <span class="text-[#8C6A5D]">tu mascota</span>
-                    </h1>
-                    
-                    <p class="mt-6 text-stone-600 leading-relaxed italic border-l-4 border-[#D9C5B2] pl-4">
-                        "Viva la veterinaria, viva la salud animal, viva el amor por nuestras mascotas. En cada consulta, en cada tratamiento, en cada cuidado, celebramos la vida y el bienestar de nuestros compañeros peludos."
-                    </p>
-                    
-                    <button class="w-full px-8 py-3 mt-8 text-sm font-bold tracking-widest text-white uppercase transition-all duration-300 transform bg-[#6F4E37] rounded-full lg:w-auto hover:bg-[#5D4037] hover:shadow-lg focus:outline-none shadow-md">
-                        {{textBoton}}
-                    </button>
-                </div>
-            </div>
+<section class="relative h-[80vh] w-full overflow-hidden bg-stone-950">
+  
+  <div class="absolute inset-0 z-0">
+    @for (banner of banners(); track banner.id; let i = $index) {
+      <div 
+        class="absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out"
+        [ngClass]="i === indiceActivo() ? 'opacity-100' : 'opacity-0'"
+      >
+        <img [src]="banner.imagenUrl" [alt]="banner.titulo" class="w-full h-full object-cover">
+        
+        <div class="absolute inset-0 bg-gradient-to-r from-[#1e3a5f]/80 via-[#1e3a5f]/30 to-transparent"></div>
+      </div>
+    }
+  </div>
 
-            <div class="flex items-center justify-center w-full mt-10 lg:mt-0 lg:w-1/2">
-                <div class="relative">
-                    <div class="absolute inset-0 bg-[#D9C5B2] blur-3xl opacity-20 rounded-full"></div>
-                    <img class="relative w-full h-full lg:max-w-2xl drop-shadow-2xl" [src]="imagen" alt="Mascota">
-                </div>
-            </div>
-        </div>
+  <div class="relative z-10 container mx-auto px-6 md:px-12 h-full flex items-center">
+    <div class="max-w-xl">
+      
+      <h1 class="text-4xl md:text-6xl font-black uppercase leading-[1.1] mb-6 text-white tracking-tighter">
+        {{ bannerActual().titulo }} <br>
+        <span class="text-[#f59e0b] drop-shadow-md">{{ bannerActual().tituloResaltado }}</span>
+      </h1>
+
+      <p class="text-xs md:text-sm text-stone-200 font-medium max-w-sm mb-10 leading-relaxed border-l-2 border-[#f59e0b] pl-5 opacity-90">
+        {{ bannerActual().descripcion }}
+      </p>
+
+      <div class="flex items-center gap-4">
+        
+        @if (indiceActivo() === 1) {
+          <button class="group bg-[#f59e0b] text-[#1e3a5f] px-7 py-3.5 rounded-full font-black uppercase text-[10px] tracking-widest flex items-center hover:bg-white transition-all duration-300 shadow-lg">
+            <span>Ver Servicios</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5 ml-2 group-hover:translate-x-1 transition-transform">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </button>
+        }
+
+        @if (indiceActivo() === 2) {
+          <button class="group bg-white text-[#1e3a5f] px-7 py-3.5 rounded-full font-black uppercase text-[10px] tracking-widest flex items-center hover:bg-[#f59e0b] transition-all duration-300 shadow-lg">
+            <span>Ver Productos</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5 ml-2 group-hover:translate-x-1 transition-transform">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
+            </svg>
+          </button>
+        }
+      </div>
     </div>
-</header>
+  </div>
+
+  <div class="absolute bottom-10 left-1/2 -translate-x-1/2 md:left-12 md:translate-x-0 z-20 flex gap-2.5">
+    @for (dot of banners(); track dot.id; let i = $index) {
+      <button 
+        (click)="irASlide(i)"
+        class="h-1 rounded-full transition-all duration-700"
+        [ngClass]="i === indiceActivo() ? 'w-12 bg-[#f59e0b]' : 'w-4 bg-white/20 hover:bg-white/50'"
+      ></button>
+    }
+  </div>
+</section>

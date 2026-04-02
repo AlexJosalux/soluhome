@@ -1,9 +1,8 @@
 export const firebaseConfig = {
-  apiKey: "AIzaSyDKUKEmk6exbknwfRnGssBfMxPnc1Wflhc",
-  authDomain: "vetone-42f39.firebaseapp.com",
-  projectId: "vetone-42f39",
-  storageBucket: "vetone-42f39.firebasestorage.app",
-  messagingSenderId: "886733630320",
-  appId: "1:886733630320:web:9c48096e70988530efbdb5",
-  measurementId: "G-MBQDLT13DL"
+  apiKey: "AIzaSyDZviYWumc7K_2o2ZceHQxyEB5IzYsH7zQ",
+  authDomain: "soluhome-2a5d9.firebaseapp.com",
+  projectId: "soluhome-2a5d9",
+  storageBucket: "soluhome-2a5d9.firebasestorage.app",
+  messagingSenderId: "715613246744",
+  appId: "1:715613246744:web:bf12929c733243429aba6d"
 };

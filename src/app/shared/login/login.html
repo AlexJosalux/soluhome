@@ -1,101 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar/Sesion</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-stone-100 min-h-screen flex items-center justify-center">
-    <div class="container mx-auto px-4">
-        <div class="max-w-md mx-auto bg-[#fafaf9] rounded-xl shadow-lg overflow-hidden md:max-w-2xl border border-stone-200">
-            <div class="p-8">
-                <div class="flex justify-center mb-8">
-                    <button id="loginTab" class="px-6 py-2 font-medium text-white bg-[#5c4033] rounded-l-lg focus:outline-none">
-                        Iniciar
-                    </button>
-                    <button id="signupTab" class="px-6 py-2 font-medium text-[#5c4033] bg-white border border-[#5c4033] rounded-r-lg focus:outline-none">
-                        Sesion
-                    </button>
-                </div>
-
-                <form (ngSubmit)="iniciarSesion()" id="loginForm" class="space-y-6">
-                    <h2 class="text-2xl font-bold text-center text-[#442c1e]">Iniciar Sesion</h2>
-                    <div>
-                        <label for="loginEmail" class="block text-sm font-medium text-stone-700">Correo Electrónico</label>
-                        <input [(ngModel)]="email" name="email" type="email" id="loginEmail" required class="mt-1 block w-full px-3 py-2 border border-stone-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8b5e3c] focus:border-[#8b5e3c] bg-stone-50">
-                    </div>
-                    <div>
-                        <label for="loginPassword" class="block text-sm font-medium text-stone-700">Contraseña</label>
-                        <input [(ngModel)]="password" name="password" type="password" id="loginPassword" required class="mt-1 block w-full px-3 py-2 border border-stone-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8b5e3c] focus:border-[#8b5e3c] bg-stone-50">
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-[#8b5e3c] focus:ring-[#8b5e3c] border-stone-300 rounded">
-                            <label for="remember-me" class="ml-2 block text-sm text-stone-700">Recordarme</label>
-                        </div>
-                        <div class="text-sm">
-                            <a href="#" class="font-medium text-[#8b5e3c] hover:text-[#5c4033]">¿Olvidaste tu contraseña?</a>
-                        </div>
-                    </div>
-                    <div>
-                        <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#5c4033] hover:bg-[#442c1e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8b5e3c]">
-                            Iniciar Sesion
-                        </button>
-                    </div>
-                </form>
-
-                <form id="signupForm" class="space-y-6 hidden">
-                    <h2 class="text-2xl font-bold text-center text-[#442c1e]">Crear Cuenta</h2>
-                    <div>
-                        <label for="signupName" class="block text-sm font-medium text-stone-700">Nombre Completo</label>
-                        <input type="text" id="signupName" required class="mt-1 block w-full px-3 py-2 border border-stone-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8b5e3c] focus:border-[#8b5e3c] bg-stone-50">
-                    </div>
-                    <div>
-                        <label for="signupEmail" class="block text-sm font-medium text-stone-700">Correo Electrónico</label>
-                        <input type="email" id="signupEmail" required class="mt-1 block w-full px-3 py-2 border border-stone-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8b5e3c] focus:border-[#8b5e3c] bg-stone-50">
-                    </div>
-                    <div>
-                        <label for="signupPassword" class="block text-sm font-medium text-stone-700">Contraseña</label>
-                        <input type="password" id="signupPassword" required class="mt-1 block w-full px-3 py-2 border border-stone-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8b5e3c] focus:border-[#8b5e3c] bg-stone-50">
-                    </div>
-                    <div>
-                        <label for="confirmPassword" class="block text-sm font-medium text-stone-700">Confirmar Contraseña</label>
-                        <input type="password" id="confirmPassword" required class="mt-1 block w-full px-3 py-2 border border-stone-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8b5e3c] focus:border-[#8b5e3c] bg-stone-50">
-                    </div>
-                    <div class="flex items-center">
-                        <input id="terms" name="terms" type="checkbox" required class="h-4 w-4 text-[#8b5e3c] focus:ring-[#8b5e3c] border-stone-300 rounded">
-                        <label for="terms" class="ml-2 block text-sm text-stone-700">
-                            Estoy de acuerdo con los <a href="#" class="text-[#8b5e3c] hover:text-[#5c4033]">Términos y Condiciones</a>
-                        </label>
-                    </div>
-                    <div>
-                        <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#5c4033] hover:bg-[#442c1e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8b5e3c]">
-                            Crear Cuenta
-                        </button>
-                    </div>
-                </form>
-
-                <div class="mt-6">
-                    <div class="relative">
-                        <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-stone-300"></div>
-                        </div>
-                        <div class="relative flex justify-center text-sm">
-                            <span class="px-2 bg-[#fafaf9] text-stone-500">O continuar con</span>
-                        </div>
-                    </div>
-                    <div class="mt-6 grid grid-cols-2 gap-3">
-                        <button type="button" class="w-full inline-flex justify-center py-2 px-4 border border-stone-300 rounded-md shadow-sm bg-white text-sm font-medium text-stone-700 hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8b5e3c]">
-                            <img class="h-5 w-5" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROtT2Um38jtuqcDEmCfCx3tEqzORl-PCvxarTPD9jZlFvd9djCM7Gl36bGA4X-JBaMEmk&usqp=CAU" alt="Google">
-                        </button>
-                        <button type="button" class="w-full inline-flex justify-center py-2 px-4 border border-stone-300 rounded-md shadow-sm bg-white text-sm font-medium text-stone-700 hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8b5e3c]">
-                            <img class="h-5 w-5" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROtT2Um38jtuqcDEmCfCx3tEqzORl-PCvxarTPD9jZlFvd9djCM7Gl36bGA4X-JBaMEmk&usqp=CAU" alt="GitHub">
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="min-h-screen bg-slate-100 flex items-center justify-center p-4 font-sans">
+  <div class="w-full max-w-[900px] h-[480px] bg-white rounded-[32px] shadow-2xl flex overflow-hidden border border-gray-200">
+    
+    <div class="w-1/2 bg-gradient-to-br from-white via-blue-50 to-blue-600 flex flex-col items-center justify-center p-8 text-center border-r border-gray-100">
+      <img src="images/logosolu.png" alt="SoluHome" class="w-72 mb-6 drop-shadow-2xl">
+      
+      <div class="relative z-10">
+        <h3 class="text-xl font-black text-blue-900 italic tracking-tight uppercase">Bienvenido</h3>
+        <p class="text-blue-800 text-[11px] font-bold leading-relaxed max-w-[220px] mx-auto mt-2">
+          La mejor opción para el mantenimiento de tu hogar.
+        </p>
+        
+        <button routerLink="/registro"
+          class="mt-8 px-12 py-3 border-2 border-blue-900 text-blue-900 text-[10px] font-black rounded-full hover:bg-blue-900 hover:text-white transition-all active:scale-95 uppercase tracking-[0.2em]">
+          Registrarse
+        </button>
+      </div>
     </div>
-</body>
-</html>
+
+    <div class="w-1/2 bg-white flex flex-col items-center justify-center px-16">
+      <div class="w-full max-w-[300px]">
+        <h2 class="text-3xl font-black text-black mb-1 tracking-tighter italic text-center uppercase">Entrar</h2>
+        <p class="text-blue-600 text-[10px] mb-10 text-center uppercase tracking-[0.3em] font-bold">Acceso Seguro</p>
+        
+        <form (submit)="iniciarSesion()" class="space-y-6">
+          <div class="space-y-1">
+            <label class="text-[9px] font-black text-black ml-1 uppercase mb-1 block">Correo Electrónico</label>
+            <input type="email" name="email" [(ngModel)]="email" required placeholder="tu@correo.com"
+              class="w-full px-4 py-3.5 bg-white border-2 border-blue-900/40 rounded-xl focus:border-blue-600 outline-none text-[12px] text-black font-bold placeholder-gray-400 transition-all shadow-sm">
+          </div>
+          
+          <div class="space-y-1">
+            <label class="text-[9px] font-black text-black ml-1 uppercase mb-1 block">Contraseña</label>
+            <input type="password" name="password" [(ngModel)]="password" required placeholder="••••••••"
+              class="w-full px-4 py-3.5 bg-white border-2 border-blue-900/40 rounded-xl focus:border-blue-600 outline-none text-[12px] text-black font-bold placeholder-gray-400 transition-all shadow-sm">
+          </div>
+
+          <button type="submit" 
+            class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-black rounded-2xl shadow-lg shadow-blue-200 transition-all active:scale-95 mt-2 uppercase tracking-widest">
+            Iniciar Sesión
+          </button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>

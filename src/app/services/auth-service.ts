@@ -1,57 +1,84 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { getAuth, signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
 import { UsuarioService } from './usuario-service';
-import { map, Observable } from 'rxjs';
-import { Usuario } from '../models/usuario';
+import { Usuario } from '../models/usuario'; // Asegúrate de importar tu interfaz
+import { map, Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
+  private router = inject(Router);
+  private servicioUsuario = inject(UsuarioService);
 
-  private router = inject(Router)
+  // Signals reactivos para el estado global de la app
+  public sesionIniciada = signal<boolean>(localStorage.getItem('sesion') === 'true');
+  public rolActual = signal<string | null>(localStorage.getItem('rol'));
+  
+  // Nuevo Signal para obtener el objeto usuario completo fácilmente
+  public usuarioLogueado = signal<Usuario | null>(
+    localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null
+  );
 
-  private usuario: User | null = null;
-  private auth = getAuth();
-
-  private servicioUsuario = inject(UsuarioService)
-  sesionInciada = signal<boolean>(localStorage.getItem('sesion')==='true')
-  rolActual = signal<string | null>(localStorage.getItem('rol'));
-
-  login(email: string, password: string):Observable<boolean>{
+  /**
+   * Intenta iniciar sesión comparando credenciales con la lista de usuarios.
+   */
+  login(email: string, password: string): Observable<boolean> {
     return this.servicioUsuario.getUsuarios().pipe(
       map(usuarios => {
-        const usuarioCoincide = usuarios.find(u=> u.email=== email && u.password === password);
-        if (usuarioCoincide){
-          localStorage.setItem('sesion', 'true')
+        const usuarioCoincide = usuarios.find(u => u.email === email && u.password === password);
+
+        if (usuarioCoincide) {
+          // Guardar estado en LocalStorage
+          localStorage.setItem('sesion', 'true');
           localStorage.setItem('user', JSON.stringify(usuarioCoincide));
-          localStorage.setItem('rol', usuarioCoincide.rol)
-          this.rolActual.set(usuarioCoincide.rol)
-          this.sesionInciada.set(true)
+          localStorage.setItem('rol', usuarioCoincide.rol);
+
+          // Actualizar Signals reactivos
+          this.rolActual.set(usuarioCoincide.rol);
+          this.usuarioLogueado.set(usuarioCoincide);
+          this.sesionIniciada.set(true);
+          
           return true;
         }
         return false;
       })
-    )
-
-    //Metodo de dfirebase auth para
-    //signInWithEmailAndPassword(this.auth, email, password)
-    //ejecutar cuando el incioi de sesion es exitoso
-    //.then(usuarioAutenticado => {
-      //this.router.navigate(['usuarios'])
-      //this.usuario = usuarioAutenticado.user})
-    //Ejecutar cuando falla el inicio de sesion
-    //.catch(err => this.router.navigate(['login']));
+    );
   }
 
-  logout(){
+  /**
+   * Método para obtener el usuario actual desde cualquier componente
+   */
+  getUsuarioActual(): Usuario | null {
+    return this.usuarioLogueado();
+  }
+
+  /**
+   * Limpia la sesión y redirige al inicio
+   */
+  logout(): void {
+    // Limpiar almacenamiento
     localStorage.removeItem('sesion');
     localStorage.removeItem('user');
-    localStorage.removeItem('rol')
-    this.sesionInciada.set(false);
-    this.rolActual.set(null)
-  }
+    localStorage.removeItem('rol');
 
-  
+    // Resetear Signals
+    this.sesionIniciada.set(false);
+    this.rolActual.set(null);
+    this.usuarioLogueado.set(null);
+
+    // Redirección nítida al login
+    this.router.navigate(['/login']);
+
+  }
+  estaAutenticado(): boolean {
+  return this.sesionIniciada();
+}
+
+/**
+ * Retorna el rol para proteger vistas administrativas
+ */
+obtenerRol(): string | null {
+  return this.rolActual();
+}
 }

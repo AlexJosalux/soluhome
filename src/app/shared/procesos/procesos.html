@@ -1,0 +1,59 @@
+<section class="py-12 bg-white">
+  <div class="max-w-screen-xl mx-auto px-6">
+    
+    <div class="text-center mb-10">
+      <h2 class="text-3xl md:text-4xl font-black text-[#1e3a5f] uppercase tracking-tighter">
+        Nuestro Protocolo Técnico
+      </h2>
+      <div class="w-12 h-1 bg-amber-500 mx-auto mt-4 rounded-full"></div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      @for (paso of pasosProtocolo; track paso.id) {
+        <div class="group bg-white rounded-xl p-7 shadow-sm border border-stone-100 hover:shadow-lg transition-all duration-500 relative overflow-hidden">
+          
+          <div [style.background-color]="paso.color" 
+               class="w-12 h-12 rounded-tr-2xl rounded-bl-lg rounded-tl-lg rounded-br-lg text-white flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" [attr.d]="paso.icon" />
+            </svg>
+          </div>
+
+          <p class="text-[9px] font-black text-amber-600 uppercase tracking-[0.15em] mb-1.5">{{ paso.subtitulo }}</p>
+          <h3 class="text-lg font-black text-[#1e3a5f] uppercase tracking-tight mb-2.5">{{ paso.titulo }}</h3>
+          
+          <p class="text-stone-500 text-[13px] leading-relaxed font-medium mb-6 italic">
+            {{ paso.descripcion }}
+          </p>
+
+          <a [routerLink]="paso.link" class="text-[10px] font-black uppercase text-[#1e3a5f] flex items-center gap-2 group-hover:text-amber-500 transition-colors">
+            Saber Más <div class="w-3 h-[1.5px] bg-amber-400 group-hover:w-6 transition-all"></div>
+          </a>
+        </div>
+      }
+    </div>
+
+    <div class="relative bg-[#1e3a5f] rounded-2xl p-6 md:p-10 overflow-hidden shadow-xl">
+      <div class="absolute top-0 right-0 w-48 h-48 bg-amber-500 opacity-10 rounded-full -mr-16 -mt-16"></div>
+      
+      <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="text-center md:text-left">
+          <span class="inline-block bg-amber-500 text-white text-[9px] font-bold uppercase px-3 py-0.5 rounded-full mb-3">
+            Promoción Exclusiva
+          </span>
+          <h2 class="text-2xl md:text-3xl font-black text-white uppercase tracking-tight leading-tight">
+            ¿Eres nuestro <span class="text-amber-500">primer cliente?</span>
+          </h2>
+          <p class="text-stone-300 text-xs md:text-sm mt-3 font-medium max-w-md leading-relaxed">
+            ¡Te damos la bienvenida a SoluHome! Obtén <span class="text-white font-bold underline decoration-amber-500">GRATIS</span> tu primera visita de inspección y diagnóstico técnico.
+          </p>
+        </div>
+
+        <button routerLink="/servicios" class="bg-amber-500 hover:bg-white text-[#1e3a5f] font-black px-8 py-3.5 rounded-lg uppercase tracking-wider text-[10px] transition-all hover:scale-105 shadow-md active:scale-95">
+          Reclamar Visita Gratis
+        </button>
+      </div>
+    </div>
+
+  </div>
+</section>

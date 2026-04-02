@@ -1,3 +1,208 @@
-/* You can add global styles to this file, and also import other style files */
-
+/* 1. IMPORTACIÓN DE TAILWIND Y FUENTES */
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+
+/* 2. CONFIGURACIÓN DE CAPAS Y VARIABLES */
+@layer base {
+  :root {
+    --sh-orange: #F39200;
+    --sh-blue: #2563EB;
+    --sh-blue-dark: #1E3A8A;
+    --sh-dark: #0F172A;
+    --sh-bg-light: #F8FAFC;
+    --sh-white: #FFFFFF;
+    --sh-text-main: #1E293B;
+    --sh-text-muted: #64748B;
+    --sh-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --sh-radius: 50px;
+  }
+
+  * {
+    @apply border-border;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--sh-bg-light);
+    color: var(--sh-text-main);
+    line-height: 1.6;
+    @apply antialiased;
+  }
+
+  h1, h2, h3, h4, .font-title {
+    font-family: 'Montserrat', sans-serif;
+    @apply font-extrabold uppercase tracking-tight;
+    color: var(--sh-dark);
+  }
+}
+
+/* 3. COMPONENTES (Botones y Navbar) */
+@layer components {
+  /* Botón Principal */
+  .btn-sh-primary {
+    @apply px-9 py-3.5 text-white transition-all duration-300 inline-flex items-center justify-center;
+    background-color: var(--sh-blue);
+    border-radius: var(--sh-radius);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+
+  .btn-sh-primary:hover {
+    background-color: var(--sh-blue-dark);
+    @apply -translate-y-0.5 shadow-lg;
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+  }
+
+  /* Botón Outline */
+  .btn-sh-outline {
+    @apply px-9 py-3.5 text-white transition-all duration-300 inline-flex items-center justify-center border border-white/40 backdrop-blur-sm;
+    background-color: transparent;
+    border-radius: var(--sh-radius);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+
+  .btn-sh-outline:hover {
+    @apply bg-white/10 border-white -translate-y-0.5;
+  }
+
+  /* Parche para el Navbar */
+  .h-27 {
+    height: 68px !important; /* Ajuste manual para el logo */
+  }
+
+  /* Forzar espacios en listas del Navbar */
+  #navbar-default ul {
+    @apply flex items-center gap-x-10;
+  }
+
+  #navbar-default li a {
+    @apply whitespace-nowrap transition-colors;
+  }
+}
+
+/* 4. UTILIDADES ESPECÍFICAS PARA EL HERO SLIDER */
+@layer utilities {
+  .text-hero-blue {
+    color: var(--sh-blue);
+    @apply text-5xl md:text-7xl font-black leading-none mb-4;
+  }
+
+  .text-description-muted {
+    color: #94A3B8;
+    @apply text-base md:text-lg font-light max-w-xl;
+  }
+
+  /* Ocultar scrollbar en el catálogo si usas slider manual */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  /* Efecto de hundimiento para la pestaña activa */
+.shadow-inner {
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Transición suave para que el cambio no sea brusco */
+#navbar-default a {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@theme {
+  --color-border: var(--stone-200); /* O el color hexadecimal que prefieras */
+}
+}
+/* Animación personalizada para el carrusel infinito */
+@keyframes infinite-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-infinite-scroll {
+  display: flex;
+  width: max-content; /* Asegura que la pista no se corte */
+  animation: infinite-scroll 35s linear infinite;
+}
+
+/* Pausar al pasar el mouse (opcional pero recomendado) */
+.animate-infinite-scroll:hover {
+  animation-play-state: paused;
+}
+/* Carrusel a Color SoluHome */
+@keyframes infinite-scroll-color {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+
+.animate-infinite-scroll-color {
+  display: flex;
+  width: max-content;
+  /* Animación continua y lineal */
+  animation: infinite-scroll-color 30s linear infinite; 
+}
+
+/* Pausar la animación al pasar el mouse para facilitar el clic */
+.animate-infinite-scroll-color:hover {
+  animation-play-state: paused;
+}
+/* Altura fija para móviles */
+@media (max-width: 768px) {
+  .flex-col {
+    height: 600px;
+  }
+}
+
+/* Suavizado de la aparición del texto */
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Sombra de apoyo para las imágenes de productos */
+img {
+  filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.2));
+  transition: filter 0.3s ease;
+}
+
+.group:hover img {
+  filter: drop-shadow(0 20px 15px rgba(0, 0, 0, 0.4));
+}
+/* Sombra de texto para resaltar el Ámbar sobre el Azul */
+.text-shadow {
+  text-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+}
+
+/* Animación de pulso suave para el botón de la promoción */
+button {
+  animation: subtle-pulse 3s infinite;
+}
+
+@keyframes subtle-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+/* Ajuste de la pestaña del protocolo */
+.rounded-tr-\[1\.8rem\] {
+  border-top-right-radius: 1.8rem;
+}
