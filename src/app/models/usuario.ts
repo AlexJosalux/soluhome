@@ -6,4 +6,6 @@ export interface Usuario {
   email: string;
   rol: 'cliente' | 'admin' | 'tecnico';
   password?: string; 
+  
+  pedidos?: any[]; // Aquí vendrán los datos de la base de datos
 }

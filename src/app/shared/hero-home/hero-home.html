@@ -8,7 +8,7 @@
       >
         <img [src]="banner.imagenUrl" [alt]="banner.titulo" class="w-full h-full object-cover">
         
-        <div class="absolute inset-0 bg-gradient-to-r from-[#1e3a5f]/80 via-[#1e3a5f]/30 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-[#1e3a5a]/80 via-[#1e3a5a]/30 to-transparent"></div>
       </div>
     }
   </div>
@@ -18,17 +18,19 @@
       
       <h1 class="text-4xl md:text-6xl font-black uppercase leading-[1.1] mb-6 text-white tracking-tighter">
         {{ bannerActual().titulo }} <br>
-        <span class="text-[#f59e0b] drop-shadow-md">{{ bannerActual().tituloResaltado }}</span>
+        <span class="text-[#f39200] drop-shadow-md">{{ bannerActual().tituloResaltado }}</span>
       </h1>
 
-      <p class="text-xs md:text-sm text-stone-200 font-medium max-w-sm mb-10 leading-relaxed border-l-2 border-[#f59e0b] pl-5 opacity-90">
+      <p class="text-xs md:text-sm text-stone-200 font-medium max-w-sm mb-10 leading-relaxed border-l-2 border-[#f39200] pl-5 opacity-90">
         {{ bannerActual().descripcion }}
       </p>
 
       <div class="flex items-center gap-4">
         
         @if (indiceActivo() === 1) {
-          <button class="group bg-[#f59e0b] text-[#1e3a5f] px-7 py-3.5 rounded-full font-black uppercase text-[10px] tracking-widest flex items-center hover:bg-white transition-all duration-300 shadow-lg">
+          <button 
+            routerLink="/servicios"
+            class="group bg-[#f39200] text-[#1e3a5a] px-7 py-3.5 rounded-full font-black uppercase text-[10px] tracking-widest flex items-center hover:bg-white transition-all duration-300 shadow-lg">
             <span>Ver Servicios</span>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5 ml-2 group-hover:translate-x-1 transition-transform">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -37,7 +39,9 @@
         }
 
         @if (indiceActivo() === 2) {
-          <button class="group bg-white text-[#1e3a5f] px-7 py-3.5 rounded-full font-black uppercase text-[10px] tracking-widest flex items-center hover:bg-[#f59e0b] transition-all duration-300 shadow-lg">
+          <button 
+            routerLink="/productos"
+            class="group bg-white text-[#1e3a5a] px-7 py-3.5 rounded-full font-black uppercase text-[10px] tracking-widest flex items-center hover:bg-[#f39200] hover:text-white transition-all duration-300 shadow-lg">
             <span>Ver Productos</span>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5 ml-2 group-hover:translate-x-1 transition-transform">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
@@ -53,7 +57,7 @@
       <button 
         (click)="irASlide(i)"
         class="h-1 rounded-full transition-all duration-700"
-        [ngClass]="i === indiceActivo() ? 'w-12 bg-[#f59e0b]' : 'w-4 bg-white/20 hover:bg-white/50'"
+        [ngClass]="i === indiceActivo() ? 'w-12 bg-[#f39200]' : 'w-4 bg-white/20 hover:bg-white/50'"
       ></button>
     }
   </div>

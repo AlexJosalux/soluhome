@@ -1,0 +1,16 @@
+<div class="space-y-4">
+  @for (tec of tecnicos; track tec.id) {
+    <div class="flex items-center justify-between p-3 border border-slate-100 rounded-2xl hover:bg-slate-50 transition-all">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center font-black text-[#1e3a5a]">
+          {{ tec.nombre[0] }}
+        </div>
+        <div>
+          <p class="text-xs font-black text-[#1e3a5a] uppercase">{{ tec.nombre }}</p>
+          <p class="text-[9px] text-slate-400 font-bold uppercase">{{ tec.especialidad }}</p>
+        </div>
+      </div>
+      <span class="w-2 h-2 rounded-full" [ngClass]="tec.disponible ? 'bg-green-500' : 'bg-red-400'"></span>
+    </div>
+  }
+</div>

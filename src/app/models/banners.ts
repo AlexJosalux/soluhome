@@ -1,8 +1,7 @@
-export interface Banner {
+interface Banner {
   id: number;
   imagenUrl: string;
   titulo: string;
+  tituloResaltado: string;
   descripcion: string;
-  textoBoton: string;
-  rutaBoton: string; // Ej: '/servicios' o '/productos'
 }

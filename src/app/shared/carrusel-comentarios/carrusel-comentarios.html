@@ -1,46 +1,46 @@
-<section class="py-20 bg-stone-50 overflow-hidden">
+<section class="py-20 bg-stone-50 overflow-hidden border-b border-stone-200/50">
   <div class="max-w-3xl mx-auto px-6">
     
-    <div class="relative bg-white border border-stone-200 rounded-[2.5rem] p-10 md:p-14 shadow-xl shadow-stone-200/40 transition-all duration-500">
+    <div class="relative bg-white border border-stone-200 rounded-sm md:rounded-[2.5rem] p-8 md:p-14 shadow-xl shadow-stone-200/40 transition-all duration-500">
       
-      <div class="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-[#1e3a5f] rounded-2xl flex items-center justify-center shadow-lg shadow-[#1e3a5f]/20">
-        <svg class="w-6 h-6 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+      <div class="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-[#1e3a5a] rounded-xl flex items-center justify-center shadow-lg shadow-[#1e3a5a]/20 z-20">
+        <svg class="w-6 h-6 text-[#f39200]" fill="currentColor" viewBox="0 0 24 24">
           <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
         </svg>
       </div>
 
-      <div class="relative h-44 md:h-32 overflow-hidden">
+      <div class="relative min-h-[180px] md:min-h-[140px] flex items-center justify-center overflow-hidden">
         @for (t of testimonios; track $index) {
           <div 
-            class="absolute inset-0 transition-all duration-700 flex flex-col justify-center items-center text-center"
+            class="absolute w-full transition-all duration-700 flex flex-col justify-center items-center text-center px-2"
             [class.opacity-100.translate-x-0]="activeIndex === $index"
             [class.opacity-0.translate-x-10.pointer-events-none]="activeIndex !== $index"
           >
-            <p class="text-stone-500 text-sm md:text-base font-medium italic leading-relaxed mb-6 max-w-lg">
+            <p class="text-stone-500 text-[13px] md:text-base font-bold italic leading-relaxed mb-6 max-w-lg uppercase tracking-tight">
               "{{ t.texto }}"
             </p>
             
-            <div class="flex items-center gap-4">
-              <div class="h-px w-6 bg-stone-100"></div>
-              <div>
-                <h4 class="text-[10px] font-black text-[#1e3a5f] uppercase tracking-[0.2em] mb-1">
+            <div class="flex items-center gap-3 md:gap-4 w-full justify-center">
+              <div class="h-px flex-1 max-w-[30px] bg-stone-100"></div>
+              <div class="shrink-0">
+                <h4 class="text-[10px] md:text-[11px] font-black text-[#1e3a5a] uppercase tracking-[0.2em] mb-1 italic">
                   {{ t.nombre }}
                 </h4>
-                <p class="text-amber-600 text-[9px] font-black uppercase tracking-widest italic">
+                <p class="text-[#f39200] text-[9px] font-black uppercase tracking-widest italic">
                   {{ t.servicio }}
                 </p>
               </div>
-              <div class="h-px w-6 bg-stone-100"></div>
+              <div class="h-px flex-1 max-w-[30px] bg-stone-100"></div>
             </div>
           </div>
         }
       </div>
 
-      <div class="absolute top-1/2 -translate-y-1/2 inset-x-4 flex justify-between pointer-events-none">
-        <button (click)="prev()" class="pointer-events-auto w-10 h-10 rounded-full bg-white border border-stone-100 flex items-center justify-center text-[#1e3a5f] hover:bg-[#1e3a5f] hover:text-white transition-all shadow-sm">
+      <div class="absolute inset-x-2 md:inset-x-6 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none z-30">
+        <button (click)="prev()" class="pointer-events-auto w-9 h-9 md:w-11 md:h-11 rounded-full bg-white border border-stone-100 flex items-center justify-center text-[#1e3a5a] hover:bg-[#1e3a5a] hover:text-white transition-all shadow-md active:scale-90">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
         </button>
-        <button (click)="next()" class="pointer-events-auto w-10 h-10 rounded-full bg-white border border-stone-100 flex items-center justify-center text-[#1e3a5f] hover:bg-[#1e3a5f] hover:text-white transition-all shadow-sm">
+        <button (click)="next()" class="pointer-events-auto w-9 h-9 md:w-11 md:h-11 rounded-full bg-white border border-stone-100 flex items-center justify-center text-[#1e3a5a] hover:bg-[#1e3a5a] hover:text-white transition-all shadow-md active:scale-90">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
         </button>
       </div>
@@ -50,8 +50,8 @@
     <div class="flex justify-center gap-3 mt-10">
       @for (t of testimonios; track $index) {
         <div 
-          [class]="activeIndex === $index ? 'w-8 bg-amber-500' : 'w-2 bg-stone-200'"
-          class="h-1 rounded-full transition-all duration-500"
+          [class]="activeIndex === $index ? 'w-8 bg-[#f39200]' : 'w-2 bg-stone-300'"
+          class="h-1.5 rounded-full transition-all duration-500"
         ></div>
       }
     </div>

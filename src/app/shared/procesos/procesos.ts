@@ -12,21 +12,21 @@ export class Procesos {
   pasosProtocolo = [
   {
     id: '01',
-    titulo: 'Solicita tu Servicio',
-    subtitulo: 'Mantenimiento e Instalación',
-    descripcion: 'Agenda instalaciones eléctricas, mantenimiento de aires acondicionados o reparaciones técnicas con expertos certificados.',
-    icon: 'M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z',
-    color: '#1e3a5f', // Azul Marino
-    link: '/servicios'
-  },
-  {
-    id: '02',
     titulo: 'Compra Equipos',
     subtitulo: 'Productos para el Hogar',
     descripcion: 'Adquiere tecnología de alta eficiencia: calefones, aires acondicionados y sistemas de iluminación con entrega inmediata.',
     icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z',
-    color: '#f59e0b', // Ámbar
+    color: '#f59e0b', 
     link: '/productos'
+  },
+  {
+    id: '02',
+    titulo: 'Solicita tu Servicio',
+    subtitulo: 'Mantenimiento e Instalación',
+    descripcion: 'Agenda instalaciones eléctricas, mantenimiento de aires acondicionados o reparaciones técnicas con expertos certificados.',
+    icon: 'M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z',
+    color: '#1e3a5f', 
+    link: '/servicios'
   },
   {
     id: '03',

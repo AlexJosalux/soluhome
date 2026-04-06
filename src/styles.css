@@ -206,3 +206,13 @@ button {
 .rounded-tr-\[1\.8rem\] {
   border-top-right-radius: 1.8rem;
 }
+@keyframes slide-up {
+  0%, 20% { transform: translateY(0); }
+  33%, 53% { transform: translateY(-80px); }
+  66%, 86% { transform: translateY(-160px); }
+  100% { transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slide-up 9s infinite cubic-bezier(0.645, 0.045, 0.355, 1);
+}

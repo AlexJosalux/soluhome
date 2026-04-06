@@ -1,22 +1,196 @@
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
-  <div *ngFor="let s of listaServicios" class="border rounded-xl p-4 shadow-sm hover:shadow-md transition">
-    <img [src]="s.imagen" class="w-full h-40 object-cover rounded-lg">
-    <h3 class="text-xl font-bold mt-4">{{ s.titulo }}</h3>
-    <p class="text-gray-600 text-sm">{{ s.categoria }}</p>
-    
-    <div class="flex justify-between items-center mt-4">
-      <div>
-        <span class="text-xs text-gray-400 block">Desde</span>
-        <span class="text-lg font-semibold text-blue-600">${{ s.precioBase }}</span>
-      </div>
-      <button (click)="seleccionarServicio(s)" 
-              class="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800">
-        Reservar
-      </button>
+<div class="bg-slate-50 min-h-screen font-sans antialiased overflow-x-hidden">
+
+  <div class="bg-[#1e3a5a] overflow-hidden whitespace-nowrap py-2 border-b border-[#f39200] shadow-sm sticky top-0 z-50">
+    <div class="inline-block animate-marquee">
+      <span class="text-[10px] font-black text-white uppercase tracking-[0.2em] px-4">
+        • PRECIOS SUJETOS A DIAGNÓSTICO TÉCNICO • REVISIÓN PROFESIONAL • SERVICIO SOLUHOME •
+      </span>
+      <span class="text-[10px] font-black text-[#f39200] uppercase tracking-[0.2em] px-4">
+        • PRECIOS SUJETOS A DIAGNÓSTICO TÉCNICO • REVISIÓN PROFESIONAL • SERVICIO SOLUHOME •
+      </span>
     </div>
-    
-    <p *ngIf="s.precioPost === 0" class="text-[10px] mt-2 text-orange-500 italic">
-      * Pago adicional según repuestos en sitio.
-    </p>
+  </div>
+
+  <div class="bg-[#1e3a5a] py-6 sm:py-8 md:py-10 px-4 sm:px-6 md:px-12 mb-4 shadow-lg relative overflow-hidden">
+    <div class="max-w-[1440px] mx-auto text-left relative z-10">
+      <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-white uppercase italic leading-none tracking-tighter">
+        Servicios <span class="text-[#f39200]">Generales</span>
+      </h1>
+    </div>
+  </div>
+
+  <div class="max-w-[1440px] mx-auto px-3 sm:px-4 md:px-10 mb-12">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+      @for (item of serviciosGenerales(); track item.id) {
+
+        <div class="group bg-white border border-slate-200 rounded-sm"
+             style="display: flex; flex-direction: column; overflow: visible;">
+
+          <div class="relative w-full bg-[#fcfcfc] shrink-0 overflow-hidden rounded-t-sm"
+               style="height: 180px;">
+            <img
+              [src]="item.imagen"
+              [alt]="item.titulo"
+              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
+              loading="lazy"
+            />
+            <span class="absolute top-0 left-0 bg-[#f39200] text-[#1e3a5a] px-2 py-1 text-[8px] font-black uppercase tracking-widest italic z-10">
+              {{ item.categoria }}
+            </span>
+          </div>
+
+          <div style="padding: 14px; display: flex; flex-direction: column; flex: 1;">
+
+            <h3 class="font-black text-[#1e3a5a] uppercase leading-tight tracking-tighter italic"
+                style="font-size: 13px; margin: 0 0 10px 0;">
+              {{ item.titulo }}
+            </h3>
+
+            <ul style="margin: 0 0 12px 0; padding: 0; list-style: none; flex: 0 0 auto;">
+              @for (inc of item.incluye; track inc) {
+                <li class="font-bold uppercase tracking-tighter text-slate-500"
+                    style="font-size: 10px; display: flex; align-items: flex-start; margin-bottom: 4px; line-height: 1.3;">
+                  <span style="width: 6px; height: 6px; background: #f39200; margin-top: 3px; margin-right: 8px; flex-shrink: 0; display: inline-block;"></span>
+                  {{ inc }}
+                </li>
+              }
+            </ul>
+
+            <div style="flex: 1;"></div>
+
+            <div style="border-top: 1px solid #f1f5f9; padding-top: 12px; flex: 0 0 auto;">
+              <div style="margin-bottom: 10px;">
+                <span class="font-black text-[#1e3a5a] italic tracking-tighter"
+                      style="font-size: 22px; line-height: 1; display: block;">
+                  ${{ item.precioBase }}
+                </span>
+                <span class="font-black text-slate-400 uppercase"
+                      style="font-size: 8px; letter-spacing: 0.1em; display: block; margin-top: 2px;">
+                  Costo Estimado
+                </span>
+              </div>
+              
+              <button
+                (click)="seleccionarServicio(item)"
+                [style.background]="servicioAnadidoId === item.id ? '#f39200' : 'transparent'"
+                [style.color]="servicioAnadidoId === item.id ? 'white' : '#1e3a5a'"
+                [style.border-color]="servicioAnadidoId === item.id ? '#f39200' : '#1e3a5a'"
+                style="
+                  width: 100%;
+                  display: block;
+                  border: 2px solid;
+                  font-weight: 900;
+                  font-size: 10px;
+                  text-transform: uppercase;
+                  letter-spacing: 0.15em;
+                  padding: 12px 8px;
+                  cursor: pointer;
+                  transition: all 0.3s ease;
+                  -webkit-tap-highlight-color: transparent;
+                  touch-action: manipulation;
+                  box-sizing: border-box;
+                ">
+                {{ servicioAnadidoId === item.id ? '¡Añadido al Presupuesto!' : 'Añadir al presupuesto' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="bg-[#1e3a5a] py-6 sm:py-8 md:py-10 px-4 sm:px-6 md:px-12 mb-4 shadow-lg border-t border-[#f39200]">
+    <div class="max-w-[1440px] mx-auto">
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-white uppercase italic leading-none tracking-tighter">
+        Servicios <span class="text-[#f39200]">Personalizados</span>
+      </h2>
+    </div>
+  </div>
+
+  <div class="max-w-[1440px] mx-auto px-3 sm:px-4 md:px-10 pb-20">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+      @for (item of listaServiciosApi(); track item.id) {
+
+        <div class="group bg-white border border-slate-200 rounded-sm"
+             style="display: flex; flex-direction: column; overflow: visible;">
+
+          <div class="relative w-full bg-[#fcfcfc] shrink-0 overflow-hidden rounded-t-sm"
+               style="height: 180px;">
+            <img
+              [src]="item.imagen"
+              [alt]="item.titulo"
+              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
+              loading="lazy"
+            />
+          </div>
+
+          <div style="padding: 14px; display: flex; flex-direction: column; flex: 1;">
+
+            <h3 class="font-black text-[#1e3a5a] uppercase leading-tight tracking-tighter italic"
+                style="font-size: 13px; margin: 0 0 10px 0;">
+              {{ item.titulo }}
+            </h3>
+
+            <ul style="margin: 0 0 12px 0; padding: 0 0 0 12px; list-style: none; border-left: 2px solid #f1f5f9; flex: 0 0 auto;">
+              @for (inc of item.incluye; track inc) {
+                <li class="font-bold uppercase tracking-tighter text-slate-400"
+                    style="font-size: 10px; margin-bottom: 4px; line-height: 1.3;">
+                  {{ inc }}
+                </li>
+              }
+            </ul>
+
+            <div style="flex: 1;"></div>
+
+            <div style="border-top: 1px solid #f1f5f9; padding-top: 12px; flex: 0 0 auto;">
+              <div style="margin-bottom: 10px;">
+                <span class="font-black text-[#1e3a5a] italic tracking-tighter"
+                      style="font-size: 22px; line-height: 1; display: block;">
+                  ${{ item.precioBase }}
+                </span>
+                <span class="font-black text-slate-400 uppercase"
+                      style="font-size: 8px; letter-spacing: 0.1em; display: block; margin-top: 2px;">
+                  Tarifa Base
+                </span>
+              </div>
+
+              <button
+                (click)="seleccionarServicio(item)"
+                [style.background]="servicioAnadidoId === item.id ? '#f39200' : '#1e3a5a'"
+                style="
+                  width: 100%;
+                  display: block;
+                  color: white;
+                  font-weight: 900;
+                  font-size: 10px;
+                  font-style: italic;
+                  text-transform: uppercase;
+                  letter-spacing: 0.15em;
+                  padding: 12px 8px;
+                  border: none;
+                  cursor: pointer;
+                  transition: all 0.3s ease;
+                  -webkit-tap-highlight-color: transparent;
+                  touch-action: manipulation;
+                  box-sizing: border-box;
+                ">
+                {{ servicioAnadidoId === item.id ? '¡SERVICIO SOLICITADO!' : 'Solicitar Servicio' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
   </div>
 </div>
+
+<style>
+  @keyframes marquee {
+    0%   { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+  }
+  .animate-marquee {
+    display: inline-block;
+    animation: marquee 25s linear infinite;
+  }
+</style>

@@ -11,7 +11,7 @@ import { AuthService } from '../../services/auth-service';
   styleUrl: './usuarios.css',
 })
 export class Usuarios {
-  // Inyectamos el servicio de autenticación para obtener los datos de Firebase
+  // Inyectamos el servicio de autenticación para obtener los datos
   public authService = inject(AuthService);
 
   // Creamos un Signal computado para obtener el perfil actual

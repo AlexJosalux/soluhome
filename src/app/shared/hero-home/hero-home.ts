@@ -1,19 +1,11 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-// Definimos la estructura de un Banner
-interface Banner {
-  id: number;
-  imagenUrl: string;
-  titulo: string;
-  tituloResaltado: string;
-  descripcion: string;
-}
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-hero-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './hero-home.html',
   styleUrl: './hero-home.css'
 })

@@ -1,0 +1,85 @@
+<div class="carrito-container p-6 font-sans max-w-5xl mx-auto">
+  <h2 class="text-3xl font-black uppercase italic mb-8 text-[#1e3a5a] tracking-tighter">
+    Tu Carrito
+  </h2>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <div class="lg:col-span-2 space-y-4">
+      <div *ngFor="let item of carritoService.items(); let i = index" 
+           class="bg-white border border-slate-100 p-6 rounded-[2rem] shadow-sm flex items-center justify-between group">
+        
+        <div class="flex flex-col">
+          <span class="font-black text-slate-700 uppercase text-sm tracking-wide group-hover:text-blue-600 transition-colors">
+            {{ item.nombre }}
+          </span>
+          
+          <div *ngIf="item.tecnico" class="mt-1 flex items-center gap-2">
+            <span class="bg-orange-100 text-orange-700 text-[9px] font-black px-2 py-0.5 rounded uppercase">
+              Especialista: {{ item.tecnico }}
+            </span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-6">
+          <span class="font-black text-[#1e3a5a] text-lg">{{ item.precio | currency }}</span>
+          <button (click)="eliminar(i)" class="text-slate-300 hover:text-red-500 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="esServicioTecnico()" class="bg-blue-50 border-2 border-dashed border-blue-200 p-8 rounded-[2.5rem] mt-6">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="bg-blue-600 p-2 rounded-xl text-white shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h3 class="text-xs font-black uppercase text-blue-900 tracking-widest">Programar Visita</h3>
+        </div>
+
+        <label class="block mb-4">
+          <span class="text-[10px] uppercase font-black text-blue-400 ml-1 italic">Fecha y Hora Tentativa</span>
+          <input #fechaInput type="datetime-local" 
+                 class="mt-2 block w-full bg-white border-none rounded-2xl p-4 text-sm font-bold text-slate-700 shadow-inner focus:ring-2 focus:ring-blue-500 transition-all">
+        </label>
+
+        <div class="p-4 bg-white/50 rounded-xl border border-blue-100 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="text-[10px] font-bold text-blue-800 uppercase italic">
+            Atención: Lunes a Sábado de 08:00 AM a 05:00 PM
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-[#1e3a5a] p-8 rounded-[3rem] text-white h-fit shadow-2xl shadow-blue-900/20">
+      <div class="flex justify-between items-center mb-8">
+        <span class="text-[10px] font-black uppercase tracking-[0.3em] opacity-50">Total Final</span>
+        <span class="text-3xl font-black italic tracking-tighter">{{ total() | currency }}</span>
+      </div>
+
+      <div class="space-y-3">
+        <button (click)="confirmarPedido()" 
+                [disabled]="carritoService.items().length === 0"
+                class="w-full bg-orange-500 text-[#1e3a5a] py-5 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-orange-400 transition-all active:scale-95 disabled:opacity-30">
+          Finalizar Pedido
+        </button>
+        
+        <button (click)="vaciar()" 
+                class="w-full bg-white/5 hover:bg-white/10 text-white/40 py-4 rounded-2xl font-black uppercase text-[9px] tracking-widest transition-colors">
+          Vaciar Carrito
+        </button>
+      </div>
+
+      <p class="mt-8 text-[9px] text-white/30 text-center uppercase font-bold tracking-widest leading-relaxed">
+        SoluHome Ecuador<br>
+      </p>
+    </div>
+  </div>
+</div>

@@ -1,51 +1,207 @@
-<div class="max-w-md mx-auto bg-white rounded-[32px] p-8 shadow-2xl border-2 transition-colors duration-500" 
-     [ngClass]="borderColor">
-  
-  <div class="flex flex-col items-center">
-    <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-black italic mb-4 shadow-lg">
-      {{ data?.nombre?.charAt(0) }}
+<div class="max-w-5xl mx-auto mb-8 animate-fade-in">
+  <div class="relative overflow-hidden bg-[#1e3a5a] rounded-2xl p-7 shadow-md border-l-8 border-[#f39200]">
+    <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="flex items-center gap-6">
+        <div class="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-sm">
+          <span class="text-2xl font-black text-[#1e3a5a] italic">{{ usuarioActual.nombre.charAt(0) }}</span>
+        </div>
+        <div>
+          <h1 class="text-2xl font-black text-white uppercase italic tracking-tight">
+            {{ usuarioActual.nombre }}
+          </h1>
+          <p class="text-[12px] text-slate-300 font-medium uppercase tracking-widest mt-1">
+            {{ usuarioActual.rol === 'admin' ? 'Administrador General' : (usuarioActual.rol === 'tecnico' ? 'Especialista Técnico' : 'Socio Cliente SoluHome') }}
+          </p>
+        </div>
+      </div>
+
+      <div class="flex gap-10 border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-10">
+        <div class="text-center md:text-left">
+          <p class="text-[11px] text-white/60 font-bold uppercase tracking-widest">Actividad</p>
+          <p class="text-xl font-medium text-white">
+            {{ usuarioActual.rol === 'admin' ? todosLosPedidos?.length : (usuarioActual.rol === 'tecnico' ? trabajosAsignados?.length : usuarioActual.pedidos?.length || 0) }} Pedidos
+          </p>
+        </div>
+      </div>
     </div>
-    
-    <h2 class="text-xl font-black uppercase italic text-black leading-tight text-center">
-      {{ data?.nombre }} {{ data?.apellido }}
-    </h2>
-    
-    <span class="mt-2 px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-slate-100 text-gray-600">
-      {{ data?.rol }}
-    </span>
   </div>
+</div>
 
-  <hr class="my-6 border-gray-100">
-
-  @if (data?.rol === 'cliente') {
-    <div class="space-y-4">
-      <p class="text-[10px] font-black text-blue-900 uppercase italic">Estado de Cuenta SoluHome</p>
-      <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100">
-        <p class="text-[11px] font-bold text-blue-800">Tienes 0 pedidos activos.</p>
+<div class="container mx-auto px-4">
+  
+  @if (usuarioActual.rol === 'cliente') {
+    <section class="animate-fade-in max-w-5xl mx-auto">
+      <div class="flex items-center gap-4 mb-6 px-1">
+        <h2 class="text-base font-black uppercase italic text-[#1e3a5a]">Historial de pedidos</h2>
+        <div class="h-px flex-grow bg-slate-200"></div>
       </div>
-    </div>
-  }
+      
+      <div class="space-y-4">
+        @for (pedido of usuarioActual.pedidos; track pedido.id) {
+          <div class="bg-white border border-slate-200 rounded-2xl p-5 hover:shadow-md transition-shadow">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div class="flex flex-col md:flex-row md:items-center gap-8 flex-grow">
+                <div class="min-w-[150px]">
+                  <span class="text-[11px] font-black text-[#1e3a5a] uppercase block tracking-tight">Orden #{{ pedido.id }}</span>
+                  <span class="text-base font-normal text-slate-600">{{ (pedido.createdAt || pedido.fecha) | date:'mediumDate' }}</span>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                  @for (item of pedido.items; track item.nombre) {
+                    <div class="px-4 py-1.5 bg-slate-50 rounded-lg border border-slate-100 flex items-center gap-2">
+                      <span class="text-[12px] font-medium text-slate-700 uppercase">
+                        {{ item.tipo === 'servicio' ? '🛠️' : '📦' }} {{ item.nombre }}
+                      </span>
+                    </div>
+                  }
+                </div>
+              </div>
+              <div class="flex items-center justify-between md:justify-end gap-5">
+                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-tight">{{ pedido.metodoPago || 'Transferencia' }}</span>
+                
+                <div [ngClass]="pedido.tipo === 'SERVICIO_TECNICO' ? 'bg-orange-500' : 'bg-green-600'" 
+                      class="px-4 py-1.5 rounded-md text-[10px] font-black uppercase text-white shadow-sm">
+                  {{ pedido.tipo === 'SERVICIO_TECNICO' ? 'Servicio Pendiente' : 'Producto Comprado' }}
+                </div>
 
-  @if (data?.rol === 'tecnico') {
-    <div class="space-y-4">
-      <p class="text-[10px] font-black text-amber-600 uppercase italic">Herramientas de Campo</p>
-      <button class="w-full py-3 bg-amber-500 text-white rounded-xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-amber-200">
-        Ver Ruta de Hoy
-      </button>
-    </div>
-  }
-
-  @if (data?.rol === 'admin') {
-    <div class="space-y-4 text-center">
-      <div class="p-3 bg-slate-900 rounded-2xl">
-        <p class="text-[10px] font-black text-blue-400 uppercase">Panel de Seguridad</p>
-        <p class="text-[12px] text-white font-bold">Base de Datos: Conectada</p>
+                <div class="text-right min-w-[100px]">
+                  <p class="text-lg font-black text-[#1e3a5a]">{{ pedido.total | currency }}</p>
+                </div>
+              </div>
+            </div>
+            
+            @if (pedido.tipo === 'SERVICIO_TECNICO') {
+              <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap gap-8">
+                <p class="text-[12px] text-slate-600 font-normal">
+                  <strong class="text-[#1e3a5a] font-black uppercase mr-2 tracking-tight">Cita Programada:</strong> 
+                  {{ (pedido.fechaAgenda | date:'short') || 'Por confirmar' }}
+                </p>
+                <p class="text-[13px] text-slate-600 font-normal">
+                  <strong class="text-[#1e3a5a] font-black uppercase mr-2 tracking-tight">Especialista:</strong> 
+                  {{ pedido.tecnico || 'Sin asignar' }}
+                </p>
+              </div>
+            }
+          </div>
+        }
       </div>
-    </div>
+    </section>
   }
 
-  <button (click)="cerrarSesion()" 
-    class="w-full mt-8 py-4 bg-red-600 text-white font-black rounded-2xl hover:bg-red-700 transition-all uppercase tracking-widest text-[10px] italic">
-    Finalizar Sesión
-  </button>
+  @else if (usuarioActual.rol === 'tecnico' || (usuarioActual.rol !== 'admin' && usuarioActual.rol !== 'cliente')) {
+    <section class="animate-fade-in max-w-5xl mx-auto mb-10">
+      <div class="flex items-center gap-4 mb-6 px-1">
+        <h2 class="text-base font-black uppercase italic text-[#1e3a5a]">Postulación de Especialista</h2>
+        <div class="h-px flex-grow bg-slate-200"></div>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
+        @if (!mensajeEnviado) {
+          <div class="mb-8">
+            <h3 class="text-xl font-black text-[#1e3a5a] uppercase italic">Formulario de Admisión</h3>
+            <p class="text-slate-500 text-sm mt-1">Envía tus datos para empezar a trabajar con nosotros.</p>
+          </div>
+          <form (submit)="$event.preventDefault(); mensajeEnviado = true" class="space-y-6">
+            <div class="grid md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-[11px] font-black text-[#1e3a5a] uppercase mb-2 italic">Especialidad</label>
+                <select class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#f39200]">
+                  <option>Electricidad</option>
+                  <option>Plomería</option>
+                  <option>Pintura</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-black text-[#1e3a5a] uppercase mb-2 italic">Años Experiencia</label>
+                <input type="number" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#f39200]">
+              </div>
+            </div>
+            <div>
+              <label class="block text-[11px] font-black text-[#1e3a5a] uppercase mb-2 italic">Resumen Curricular</label>
+              <textarea placeholder="Describe tu experiencia..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm h-32 focus:outline-none focus:ring-2 focus:ring-[#f39200]"></textarea>
+            </div>
+            <button type="submit" class="w-full bg-[#f39200] hover:bg-[#d98200] text-white font-black uppercase italic py-4 rounded-xl shadow-md transition-all">
+              Enviar para Aprobación
+            </button>
+          </form>
+        } @else {
+          <div class="text-center py-12">
+            <div class="w-20 h-20 bg-orange-100 text-[#f39200] rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg class="w-10 h-10 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <h3 class="text-2xl font-black text-[#1e3a5a] uppercase italic">Solicitud enviada para aprobación</h3>
+            <p class="text-slate-500 mt-2">Estamos revisando tu perfil. Te notificaremos pronto.</p>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  @else if (usuarioActual.rol === 'admin') {
+    <section class="animate-fade-in max-w-5xl mx-auto">
+      <div class="flex items-center gap-4 mb-6 px-1">
+        <h2 class="text-base font-black uppercase italic text-[#1e3a5a]">Gestión Global de Pedidos</h2>
+        <div class="h-px flex-grow bg-slate-200"></div>
+      </div>
+
+      <div class="space-y-4">
+        @for (pedido of todosLosPedidos; track pedido.id) {
+          <div class="bg-white border border-slate-200 rounded-2xl p-5 hover:shadow-md transition-shadow">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              
+              <div class="flex flex-col md:flex-row md:items-center gap-8 flex-grow">
+                <div class="min-w-[180px]">
+                  <span class="text-[11px] font-black text-[#1e3a5a] uppercase block tracking-tight italic">Orden #{{ pedido.id }}</span>
+                  <div class="flex items-center gap-2 mb-1 mt-1">
+                    <svg class="w-4 h-4 text-[#1e3a5a]" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="text-sm font-black text-[#1e3a5a] uppercase italic">{{ pedido.clienteNombre }}</span>
+                  </div>
+                  <span class="text-base font-normal text-slate-600">{{ (pedido.createdAt || pedido.fecha) | date:'mediumDate' }}</span>
+                </div>
+
+                <div class="flex flex-wrap gap-3">
+                  @for (item of pedido.items; track item.nombre) {
+                    <div class="px-4 py-1.5 bg-slate-50 rounded-lg border border-slate-100 flex items-center gap-2">
+                      <span class="text-[12px] font-medium text-slate-700 uppercase italic">
+                        {{ item.tipo === 'servicio' ? '🛠️' : '📦' }} {{ item.nombre }}
+                      </span>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between md:justify-end gap-5">
+                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-tight">{{ pedido.metodoPago || 'TRANSFERENCIA DIRECTA' }}</span>
+                <div [ngClass]="pedido.tipo === 'SERVICIO_TECNICO' ? 'bg-orange-500' : 'bg-green-600'" 
+                      class="px-4 py-1.5 rounded-md text-[10px] font-black uppercase text-white shadow-sm">
+                  {{ pedido.tipo === 'SERVICIO_TECNICO' ? 'Servicio Pendiente' : 'Producto Comprado' }}
+                </div>
+                <div class="text-right min-w-[100px]">
+                  <p class="text-lg font-black text-[#1e3a5a]">{{ pedido.total | currency }}</p>
+                </div>
+              </div>
+            </div>
+
+            @if (pedido.tipo === 'SERVICIO_TECNICO') {
+              <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap gap-8">
+                <p class="text-[12px] text-slate-600 font-normal italic">
+                  <strong class="text-[#1e3a5a] font-black uppercase mr-2 tracking-tight">Cita Programada:</strong> 
+                  {{ (pedido.fechaAgenda | date:'short') || 'Sin fecha asignada' }}
+                </p>
+                <p class="text-[13px] text-slate-600 font-normal italic">
+                  <strong class="text-[#1e3a5a] font-black uppercase mr-2 tracking-tight">Especialista:</strong> 
+                  {{ pedido.tecnico || 'Pendiente de asignación' }}
+                </p>
+              </div>
+            }
+          </div>
+        } @empty {
+          <div class="text-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
+            <p class="text-slate-400 text-xs font-black uppercase tracking-[0.3em]">No existen pedidos en el sistema</p>
+          </div>
+        }
+      </div>
+    </section>
+  }
 </div>

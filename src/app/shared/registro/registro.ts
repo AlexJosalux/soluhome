@@ -11,7 +11,7 @@ import { Usuario } from '../../models/usuario';
   standalone: true,
   imports: [FormsModule, CommonModule, RouterModule], // Agregamos RouterModule aquí
   templateUrl: './registro.html',
-  styleUrl: './registro.css'
+  // styleUrls: ['./registro.css'] // Eliminamos la referencia a CSS si estamos usando Tailwind
 })
 export class Registro {
   private readonly usuarioService = inject(UsuarioService);
@@ -27,23 +27,30 @@ export class Registro {
     apellido: '',
     email: '',
     password: '',
-    rol: 'cliente' 
+    rol: 'cliente' // Valor por defecto
   };
 
   /**
-   * Método para registrar al usuario en Firebase y redirigir al Login
+   * Método para establecer el rol visualmente desde el asistente
+   */
+  public setRol(rol: 'cliente' | 'tecnico') {
+    this.nuevoUsuario.rol = rol;
+  }
+
+  /**
+   * Método para registrar al usuario en la base de datos de itelligent
    */
   registrar() {
     // 1. Validación básica de campos obligatorios
-    if (!this.nuevoUsuario.email || !this.nuevoUsuario.password || !this.nuevoUsuario.nombre) {
-      alert('Por favor, completa todos los campos con borde azul.');
+    if (!this.nuevoUsuario.email || !this.nuevoUsuario.password || !this.nuevoUsuario.nombre || !this.nuevoUsuario.apellido) {
+      alert('Por favor, completa todos los campos para crear tu perfil SoluHome.');
       return;
     }
 
     // 2. Activamos el estado de carga
     this.cargando.set(true);
 
-    // 3. Enviamos los datos a la base de datos a través del servicio
+    // 3. Enviamos los datos a la base de datos de PostgreSQL a través del servicio
     this.usuarioService.postUsuario(this.nuevoUsuario).subscribe({
       next: (res) => {
         // Detenemos el estado de carga

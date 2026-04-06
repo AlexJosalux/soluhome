@@ -12,13 +12,7 @@ import { Observable } from 'rxjs/internal/Observable';
   templateUrl: './productos-page.html',
   styleUrl: './productos-page.css'
 })
-export class ProductosPage implements OnInit {
-  productos$!: Observable<Producto[]>; 
+export class ProductosPage {
 
-  constructor(private productoSrv: ProductoService) {}
-
-  ngOnInit(): void {
-    // Solo asignamos el flujo, no nos suscribimos manualmente
-    this.productos$ = this.productoSrv.getProductos();
-  }
+  
 }

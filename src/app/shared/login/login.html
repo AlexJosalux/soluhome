@@ -1,42 +1,77 @@
-<div class="min-h-screen bg-slate-100 flex items-center justify-center p-4 font-sans">
-  <div class="w-full max-w-[900px] h-[480px] bg-white rounded-[32px] shadow-2xl flex overflow-hidden border border-gray-200">
+<div class="min-h-screen flex items-center justify-center p-2 font-sans antialiased relative overflow-hidden bg-[#1e3a5a]">
+  
+  <img src="https://files.merca20.com/uploads/2024/07/mantenimiento-hogar-por-estacion.jpg" 
+       alt="Fondo Mantenimiento Hogar" 
+       class="absolute inset-0 w-full h-full object-cover opacity-20 blur-[1px] z-0">
+  
+  <div class="absolute inset-0 bg-[#1e3a5a]/80 z-10"></div>
+
+  <div class="w-full max-w-[740px] h-auto md:h-[480px] bg-white rounded-[1.5rem] shadow-2xl flex flex-col md:flex-row overflow-hidden border border-white/20 relative z-20 backdrop-blur-sm">
     
-    <div class="w-1/2 bg-gradient-to-br from-white via-blue-50 to-blue-600 flex flex-col items-center justify-center p-8 text-center border-r border-gray-100">
-      <img src="images/logosolu.png" alt="SoluHome" class="w-72 mb-6 drop-shadow-2xl">
+    <div class="w-full md:w-[45%] p-6 py-8 md:p-6 flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-100 relative order-1 overflow-hidden bg-[#1e3a5a]">
       
-      <div class="relative z-10">
-        <h3 class="text-xl font-black text-blue-900 italic tracking-tight uppercase">Bienvenido</h3>
-        <p class="text-blue-800 text-[11px] font-bold leading-relaxed max-w-[220px] mx-auto mt-2">
+      <img src="https://files.merca20.com/uploads/2024/07/mantenimiento-hogar-por-estacion.jpg" 
+           alt="Fondo Mantenimiento" 
+           class="absolute inset-0 w-full h-full object-cover opacity-25 z-0">
+      
+      <div class="absolute inset-0 bg-[#1e3a5a]/75 z-10"></div>
+
+      <div class="relative z-20 flex flex-col items-center text-center w-full"> 
+        <h3 class="text-xl md:text-2xl font-black uppercase italic tracking-tighter leading-none text-white">
+          Bienvenido
+        </h3>
+        
+        <p class="text-slate-200 text-[10px] md:text-[11px] font-bold uppercase mt-3 tracking-widest opacity-80 max-w-[220px] mx-auto">
           La mejor opción para el mantenimiento de tu hogar.
         </p>
-        
+
         <button routerLink="/registro"
-          class="mt-8 px-12 py-3 border-2 border-blue-900 text-blue-900 text-[10px] font-black rounded-full hover:bg-blue-900 hover:text-white transition-all active:scale-95 uppercase tracking-[0.2em]">
+          class="mt-8 px-10 py-3 border-2 border-[#f39200] text-[#f39200] text-[10px] font-black rounded-full hover:bg-[#f39200] hover:text-[#1e3a5a] transition-all active:scale-95 uppercase tracking-[0.2em] bg-transparent">
           Registrarse
         </button>
+        
+        <div class="mt-8 overflow-hidden h-10 relative w-full max-w-[180px]">
+          <div class="animate-slide-up space-y-10">
+            <div class="h-10 flex items-center gap-2 justify-center">
+              <div class="w-1 h-5 bg-[#f39200]"></div>
+              <p class="text-[12px] font-extrabold uppercase tracking-widest text-slate-100 italic">Soporte Técnico 24/7</p>
+            </div>
+            <div class="h-10 flex items-center gap-2 justify-center">
+              <div class="w-1 h-5 bg-[#f39200]"></div>
+              <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-100 italic">Técnicos Calificados</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="w-1/2 bg-white flex flex-col items-center justify-center px-16">
-      <div class="w-full max-w-[300px]">
-        <h2 class="text-3xl font-black text-black mb-1 tracking-tighter italic text-center uppercase">Entrar</h2>
-        <p class="text-blue-600 text-[10px] mb-10 text-center uppercase tracking-[0.3em] font-bold">Acceso Seguro</p>
+    <div class="w-full md:w-[55%] p-6 md:p-10 flex flex-col bg-white order-2 justify-center">
+      <div class="max-w-[300px] mx-auto w-full">
         
-        <form (submit)="iniciarSesion()" class="space-y-6">
+        <div class="flex justify-center mb-4">
+          <img src="images/logosolu.png" alt="SoluHome" class="w-40 drop-shadow-sm">
+        </div>
+
+        <div class="mb-6 text-center">
+          <h2 class="text-3xl font-black text-[#1e3a5a] mb-1 tracking-tighter italic uppercase leading-none">Entrar</h2>
+          <p class="text-[#f39200] text-[10px] uppercase tracking-[0.3em] font-bold">Acceso Seguro</p>
+        </div>
+        
+        <form (submit)="iniciarSesion()" class="space-y-4">
           <div class="space-y-1">
-            <label class="text-[9px] font-black text-black ml-1 uppercase mb-1 block">Correo Electrónico</label>
+            <label class="text-[9px] font-black text-[#1e3a5a] ml-1 uppercase block">Correo Electrónico</label>
             <input type="email" name="email" [(ngModel)]="email" required placeholder="tu@correo.com"
-              class="w-full px-4 py-3.5 bg-white border-2 border-blue-900/40 rounded-xl focus:border-blue-600 outline-none text-[12px] text-black font-bold placeholder-gray-400 transition-all shadow-sm">
+              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-[#f39200] focus:bg-white outline-none text-[12px] text-[#1e3a5a] font-bold transition-all shadow-sm">
           </div>
           
           <div class="space-y-1">
-            <label class="text-[9px] font-black text-black ml-1 uppercase mb-1 block">Contraseña</label>
+            <label class="text-[9px] font-black text-[#1e3a5a] ml-1 uppercase block">Contraseña</label>
             <input type="password" name="password" [(ngModel)]="password" required placeholder="••••••••"
-              class="w-full px-4 py-3.5 bg-white border-2 border-blue-900/40 rounded-xl focus:border-blue-600 outline-none text-[12px] text-black font-bold placeholder-gray-400 transition-all shadow-sm">
+              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-[#f39200] focus:bg-white outline-none text-[12px] text-[#1e3a5a] font-bold transition-all shadow-sm">
           </div>
 
           <button type="submit" 
-            class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-black rounded-2xl shadow-lg shadow-blue-200 transition-all active:scale-95 mt-2 uppercase tracking-widest">
+            class="w-full py-4 bg-[#1e3a5a] hover:bg-[#15293f] text-white text-[11px] font-black rounded-2xl shadow-lg shadow-[#1e3a5a]/30 transition-all active:scale-95 mt-4 uppercase tracking-widest border-none">
             Iniciar Sesión
           </button>
         </form>

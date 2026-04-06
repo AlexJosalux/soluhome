@@ -1,58 +1,113 @@
-<div class="min-h-screen bg-slate-100 flex items-center justify-center p-4 font-sans text-black">
-  <div class="w-full max-w-[900px] h-[520px] bg-white rounded-[32px] shadow-2xl flex overflow-hidden border border-gray-200">
+<div class="min-h-screen flex items-center justify-center p-2 font-sans antialiased relative overflow-hidden bg-[#1e3a5a]">
+  
+  <img src="https://files.merca20.com/uploads/2024/07/mantenimiento-hogar-por-estacion.jpg" 
+       alt="Fondo Mantenimiento Hogar" 
+       class="absolute inset-0 w-full h-full object-cover opacity-20 blur-[1px] z-0">
+  
+  <div class="absolute inset-0 bg-[#1e3a5a]/80 z-10"></div>
+
+  <div class="w-full max-w-[740px] h-auto md:h-[480px] bg-white rounded-[1.5rem] shadow-2xl flex flex-col md:flex-row overflow-hidden border border-white/20 relative z-20 backdrop-blur-sm">
     
-    <div class="w-1/2 bg-white flex flex-col items-center justify-center px-16">
-      <div class="w-full max-w-[320px]">
-        <h2 class="text-3xl font-black text-black mb-1 tracking-tighter italic text-center uppercase">Registro</h2>
-        <p class="text-blue-700 text-[10px] mb-8 text-center uppercase tracking-[0.3em] font-bold">Nueva Cuenta</p>
+    <div class="w-full md:w-[55%] p-5 md:p-6 flex flex-col bg-white order-2 md:order-1 justify-center">
+      <div class="max-w-[320px] mx-auto w-full">
         
-        <form (ngSubmit)="registrar()" #registroForm="ngForm" class="space-y-3">
-          <div class="flex gap-2">
-            <div class="w-1/2">
-              <label class="text-[9px] font-black text-black ml-1 uppercase mb-1 block">Nombre</label>
-              <input type="text" name="nombre" [(ngModel)]="nuevoUsuario.nombre" placeholder="Nombre" required
-                class="w-full px-4 py-3 bg-white border-2 border-blue-900/60 rounded-xl focus:border-blue-600 outline-none text-[11px] text-black font-bold shadow-sm">
-            </div>
-            <div class="w-1/2">
-              <label class="text-[9px] font-black text-black ml-1 uppercase mb-1 block">Apellido</label>
-              <input type="text" name="apellido" [(ngModel)]="nuevoUsuario.apellido" placeholder="Apellido" required
-                class="w-full px-4 py-3 bg-white border-2 border-blue-900/60 rounded-xl focus:border-blue-600 outline-none text-[11px] text-black font-bold shadow-sm">
-            </div>
-          </div>
+        <div class="flex justify-center mt-0 mb-2">
+          <img src="/images/logosolu.png" alt="SoluHome Logo" class="w-32 md:w-40 drop-shadow-sm transition-transform hover:scale-105 duration-300">
+        </div>
+
+        <div class="mb-3 text-center">
+          <h2 class="text-lg md:text-xl font-black text-[#1e3a5a] uppercase italic tracking-tighter leading-none">Crea tu cuenta</h2>
+          <p class="text-slate-400 text-[8px] font-bold mt-1 uppercase tracking-[0.2em]">Elige tu perfil</p>
+        </div>
+
+        <form (ngSubmit)="registrar()" #registroForm="ngForm" class="space-y-2">
           
-          <div class="space-y-1">
-            <label class="text-[9px] font-black text-black ml-1 uppercase mb-1 block">Email</label>
-            <input type="email" name="email" [(ngModel)]="nuevoUsuario.email" placeholder="tu@correo.com" required
-              class="w-full px-4 py-3 bg-white border-2 border-blue-900/60 rounded-xl focus:border-blue-600 outline-none text-[11px] text-black font-bold shadow-sm">
-          </div>
-          
-          <div class="space-y-1">
-            <label class="text-[9px] font-black text-black ml-1 uppercase mb-1 block">Contraseña</label>
-            <input type="password" name="password" [(ngModel)]="nuevoUsuario.password" placeholder="••••••••" required
-              class="w-full px-4 py-3 bg-white border-2 border-blue-900/60 rounded-xl focus:border-blue-600 outline-none text-[11px] text-black font-bold shadow-sm">
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <button type="button" (click)="setRol('cliente')"
+              class="flex items-center bg-white border border-[#1e3a5a]/50 rounded-xl overflow-hidden shadow-sm transition-all relative h-11 md:h-12"
+              [ngClass]="nuevoUsuario.rol === 'cliente' ? 'ring-2 ring-[#f39200] border-transparent shadow-lg shadow-[#f39200]/10' : ''">
+              
+              <div class="w-8 md:w-10 h-full flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="#f39200" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                </svg>
+              </div>
+              <div class="px-1 flex-1 text-left">
+                <p class="text-[6px] text-slate-400 font-bold uppercase leading-none">Soy</p>
+                <p class="text-[9px] md:text-[10px] font-black text-[#1e3a5a] uppercase tracking-tighter truncate">Cliente</p>
+              </div>
+            </button>
+
+            <button type="button" (click)="setRol('tecnico')"
+              class="flex items-center bg-white border border-[#1e3a5a]/50 rounded-xl overflow-hidden shadow-sm transition-all relative h-11 md:h-12"
+              [ngClass]="nuevoUsuario.rol === 'tecnico' ? 'ring-2 ring-[#f39200] border-transparent shadow-lg shadow-[#f39200]/10' : ''">
+              
+              <div class="w-8 md:w-10 h-full flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="#f39200" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 .621-.504 1.125-1.125 1.125H4.875c-.621 0-1.125-.504-1.125-1.125v-4.25m16.5 0a2.25 2.25 0 00-1.875-2.217V7.875A2.25 2.25 0 0016.125 5.625H7.875a2.25 2.25 0 00-2.25 2.25v4.058A2.25 2.25 0 003.75 14.15m16.5 0h-16.5m10.5-3v-2.25a.75.75 0 00-1.5 0v2.25m-3 0v-2.25a.75.75 0 00-1.5 0v2.25" />
+                </svg>
+              </div>
+              <div class="px-1 flex-1 text-left">
+                <p class="text-[6px] text-slate-400 font-bold uppercase leading-none">Soy</p>
+                <p class="text-[9px] md:text-[10px] font-black text-[#1e3a5a] uppercase tracking-tighter truncate">Técnico</p>
+              </div>
+            </button>
           </div>
 
-          <button type="submit" [disabled]="!registroForm.form.valid"
-            class="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white text-[11px] font-black rounded-2xl shadow-lg shadow-blue-200 transition-all active:scale-95 mt-4 uppercase tracking-widest border-none italic">
-            Crear Perfil
+          <div class="grid grid-cols-2 gap-2">
+            <input type="text" name="nombre" [(ngModel)]="nuevoUsuario.nombre" placeholder="NOMBRE" required
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg focus:border-[#f39200] focus:bg-white outline-none text-[10px] font-bold transition-all">
+            <input type="text" name="apellido" [(ngModel)]="nuevoUsuario.apellido" placeholder="APELLIDO" required
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg focus:border-[#f39200] focus:bg-white outline-none text-[10px] font-bold transition-all">
+          </div>
+          
+          <input type="email" name="email" [(ngModel)]="nuevoUsuario.email" placeholder="CORREO ELECTRÓNICO" required
+            class="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg focus:border-[#f39200] focus:bg-white outline-none text-[10px] font-bold">
+          
+          <input type="password" name="password" [(ngModel)]="nuevoUsuario.password" placeholder="CONTRASEÑA" required
+            class="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg focus:border-[#f39200] focus:bg-white outline-none text-[10px] font-bold">
+
+          <button type="submit" [disabled]="cargando()"
+            class="w-full py-3 bg-[#1e3a5a] hover:bg-[#15293f] text-white text-[10px] font-black rounded-xl transition-all active:scale-95 mt-1 uppercase italic tracking-widest shadow-lg shadow-[#1e3a5a]/30 border-none">
+            {{ cargando() ? 'PROCESANDO...' : 'CREAR CUENTA' }}
           </button>
         </form>
+
+        <p class="text-center mt-3 mb-1 text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">
+          ¿Ya eres parte? <a routerLink="/login" class="text-[#f39200] font-black hover:underline ml-1">Inicia Sesión</a>
+        </p>
       </div>
     </div>
 
-    <div class="w-1/2 bg-gradient-to-br from-white via-blue-50 to-blue-600 flex flex-col items-center justify-center p-8 text-center border-l border-gray-100">
-      <img src="assets/images/logosolu.png" alt="SoluHome" class="w-72 mb-6 drop-shadow-2xl">
+    <div class="w-full md:w-[45%] p-5 md:p-6 flex flex-col justify-center border-b md:border-b-0 md:border-l border-slate-100 relative order-1 md:order-2 overflow-hidden bg-[#1e3a5a]">
       
-      <div class="relative z-10">
-        <h3 class="text-xl font-black text-blue-900 italic tracking-tight uppercase">¿Ya eres parte?</h3>
-        <p class="text-blue-800 text-[11px] font-bold leading-relaxed max-w-[220px] mx-auto mt-2">
-          Inicia sesión para gestionar tus servicios técnicos.
+      <img src="https://files.merca20.com/uploads/2024/07/mantenimiento-hogar-por-estacion.jpg" 
+           alt="Fondo Mantenimiento" 
+           class="absolute inset-0 w-full h-full object-cover opacity-25 z-0">
+      
+      <div class="absolute inset-0 bg-[#1e3a5a]/75 z-10"></div>
+
+      <div class="relative z-20 flex flex-col items-center text-center w-full"> 
+        <h3 class="text-xl md:text-2xl font-black uppercase italic tracking-tighter leading-none text-white">
+          Bienvenido a <br> <span class="text-[#f39200]">SoluHome</span>
+        </h3>
+        
+        <p class="text-slate-200 text-[9px] font-bold uppercase mt-2 tracking-widest opacity-80">
+          Servicios y productos confiables.
         </p>
         
-        <button type="button" routerLink="/login"
-          class="mt-8 px-12 py-3 border-2 border-blue-900 text-blue-900 text-[10px] font-black rounded-full hover:bg-blue-900 hover:text-white transition-all active:scale-95 uppercase tracking-[0.2em]">
-          Iniciar Sesión
-        </button>
+        <div class="mt-4 md:mt-8 overflow-hidden h-10 relative w-full max-w-[180px]">
+          <div class="animate-slide-up space-y-10">
+            <div class="h-10 flex items-center gap-2 justify-center">
+              <div class="w-1 h-5 bg-[#f39200]"></div>
+              <p class="text-[12px] font-extrabold uppercase tracking-widest text-slate-100 italic">Soporte Técnico 24/7</p>
+            </div>
+            <div class="h-10 flex items-center gap-2 justify-center">
+              <div class="w-1 h-5 bg-[#f39200]"></div>
+              <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-100 italic">Técnicos Calificados</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 

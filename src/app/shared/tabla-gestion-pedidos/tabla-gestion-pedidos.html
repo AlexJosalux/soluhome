@@ -1,0 +1,39 @@
+<div class="overflow-x-auto">
+  <table class="w-full text-left text-xs text-slate-300">
+    <thead>
+      <tr class="border-b border-slate-700 uppercase tracking-tighter">
+        <th class="pb-3">Cliente</th>
+        <th class="pb-3">Tipo</th>
+        <th class="pb-3">Estado</th>
+        <th class="pb-3 text-right">Acción</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-800">
+      @for (p of pedidos; track p.id) {
+        <tr>
+          <td class="py-4 font-bold text-white">{{ p.clienteNombre }}</td>
+          <td class="py-4">
+            <span [class]="p.tipo === 'SERVICIO_TECNICO' ? 'text-blue-400' : 'text-slate-400'">
+              {{ p.tipo === 'SERVICIO_TECNICO' ? '🛠 Servicio' : '📦 Producto' }}
+            </span>
+          </td>
+          <td class="py-4">
+            <span class="px-2 py-1 rounded-md bg-slate-800 text-[9px] font-black"
+                  [ngClass]="{'text-orange-400': p.estado === 'PENDIENTE_ASIGNACION', 'text-green-400': p.estado === 'PAGADO' || p.estado === 'COMPLETADO'}">
+              {{ p.estado }}
+            </span>
+          </td>
+          <td class="py-4 text-right">
+            @if (p.tipo === 'SERVICIO_TECNICO' && !p.tecnicoId) {
+              <button (click)="abrirAsignacion(p)" class="text-blue-500 hover:underline font-black uppercase text-[9px]">
+                Asignar Técnico
+              </button>
+            } @else {
+              <span class="text-slate-600">--</span>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
