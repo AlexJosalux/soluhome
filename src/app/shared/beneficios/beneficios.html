@@ -1,34 +1,36 @@
-<section class="py-12 bg-white font-sans antialiased">
+<section class="py-10 md:py-16 bg-white font-sans antialiased">
   <div class="max-w-screen-xl mx-auto px-4">
     
-    <div class="flex flex-col lg:flex-row bg-[#FAF9F6] rounded-[2rem] overflow-hidden shadow-sm border border-stone-100">
+    <div class="flex flex-col lg:flex-row bg-[#FAF9F6] rounded-[2.5rem] md:rounded-[3rem] shadow-sm border border-stone-100 overflow-hidden h-auto">
       
-      <div class="lg:w-1/4 bg-[#f39200] p-10 flex flex-col justify-center relative overflow-hidden">
+      <div class="w-full lg:w-1/4 bg-[#f39200] p-10 flex flex-col justify-center relative overflow-hidden text-center lg:text-left min-h-[200px]">
         <div class="absolute top-0 left-0 w-full h-full bg-[#1e3a5a]/5 pointer-events-none"></div>
         
-        <h2 class="text-3xl font-black text-[#1e3a5a] leading-tight relative z-10 uppercase tracking-tighter italic">
+        <h2 class="text-2xl md:text-3xl font-black text-[#1e3a5a] leading-tight relative z-10 uppercase tracking-tighter italic">
           {{ infoPrincipal.titulo }}
         </h2>
-        <p class="mt-4 text-[#1e3a5a]/80 text-[11px] leading-relaxed font-bold uppercase tracking-wider relative z-10">
+        <p class="mt-4 text-[#1e3a5a]/80 text-[10px] md:text-[11px] leading-relaxed font-bold uppercase tracking-wider relative z-10 max-w-[200px] mx-auto lg:mx-0">
           {{ infoPrincipal.descripcion }}
         </p>
       </div>
 
-      <div class="lg:w-3/4 p-10 md:p-14 flex items-center">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-12 w-full">
+      <div class="w-full lg:w-3/4 p-8 md:p-14 bg-[#FAF9F6]">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-y-12 md:gap-12 w-full">
           
           @for (item of listaBeneficios; track item.id) {
-            <div class="flex flex-col items-center text-center group">
+            <div class="flex flex-col items-center text-center group py-2">
+              
               <div class="mb-5 transition-all duration-300 group-hover:-translate-y-1 group-hover:text-[#f39200] text-[#1e3a5a]">
-                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" [attr.d]="item.iconPath" />
                 </svg>
               </div>
 
-              <h3 class="text-sm font-black text-[#1e3a5a] mb-2 tracking-tight uppercase group-hover:italic transition-all">
+              <h3 class="text-sm md:text-base font-black text-[#1e3a5a] mb-2 tracking-tight uppercase group-hover:italic transition-all">
                 {{ item.titulo }}
               </h3>
-              <p class="text-stone-500 text-[11px] leading-relaxed max-w-[180px] font-medium">
+              
+              <p class="text-stone-500 text-[12px] md:text-[11px] leading-relaxed max-w-[240px] md:max-w-[180px] font-medium">
                 {{ item.descripcion }}
               </p>
             </div>

@@ -17,10 +17,30 @@ export class CarritoDetalle {
   // Referencia al input de fecha en el HTML (#fechaInput)
   @ViewChild('fechaInput') fechaInput?: ElementRef<HTMLInputElement>;
 
-  // Cálculo del total reactivo
+  // --- LÓGICA DE FACTURACIÓN: IVA INCLUIDO (TALLER 2) ---
+
+  /**
+   * 1. Total Final: Es la suma directa de los precios (ya incluyen IVA).
+   */
   total = computed(() => {
     return this.carritoService.items().reduce((acc, item) => acc + (item.precio || 0), 0);
   });
+
+  /**
+   * 2. Subtotal (Base Imponible): Se extrae dividiendo el total para 1.12.
+   */
+  subtotal = computed(() => {
+    return this.total() / 1.12;
+  });
+
+  /**
+   * 3. IVA (12%): Es la diferencia entre el total pagado y la base imponible.
+   */
+  iva = computed(() => {
+    return this.total() - this.subtotal();
+  });
+
+  // -------------------------------------------------
 
   // Detecta si hay servicios técnicos en el carrito para mostrar el calendario
   esServicioTecnico = computed(() => {
@@ -89,7 +109,6 @@ export class CarritoDetalle {
 
     // --- LÓGICA DE ASIGNACIÓN CONDICIONAL ---
     let tecnicoAsignado = null;
-    // Solo buscamos técnico si el carrito detecta un servicio
     if (this.esServicioTecnico()) {
       const primeraCategoria = this.carritoService.items()[0]?.categoria || '';
       tecnicoAsignado = this.buscarTecnicoAutomatico(primeraCategoria);
@@ -104,12 +123,15 @@ export class CarritoDetalle {
       clienteId: clienteData.id,
       clienteNombre: clienteData.nombre,
       
-      // Si es servicio, asigna el técnico. Si es producto, queda como null/vacío.
       tecnico: tecnicoAsignado ? tecnicoAsignado.nombre : null,
       tecnicoId: tecnicoAsignado ? tecnicoAsignado.id : null,
       
       items: [...this.carritoService.items()],
-      total: this.total(),
+      
+      // VALORES DE FACTURACIÓN (Taller 2 - Desglose de IVA Incluido)
+      subtotal: this.subtotal(),
+      iva: this.iva(),
+      total: this.total(), 
       
       createdAt: ahora,             
       updatedAt: ahora,             
@@ -119,7 +141,6 @@ export class CarritoDetalle {
       fechaAgenda: fechaAgendada || null,
       tipo: this.esServicioTecnico() ? 'SERVICIO_TECNICO' : 'SOLO_PRODUCTO',
       
-      // Estado dinámico: si hay técnico asignado pasa a EN_PROCESO, sino es un pedido COMPLETADO de producto
       estado: this.esServicioTecnico() ? (tecnicoAsignado ? 'EN_PROCESO' : 'PENDIENTE') : 'COMPLETADO'
     };
 
@@ -129,12 +150,10 @@ export class CarritoDetalle {
       pedidosDB.push(nuevoPedido);
       localStorage.setItem('pedidos_db', JSON.stringify(pedidosDB));
 
-      // 5. FINALIZAR CON ALERTA CONDICIONAL
-      // Si tiene técnico asignado (es servicio), muestra el nombre en la alerta
+      // 5. FINALIZAR CON ALERTA
       if (nuevoPedido.tecnico) {
         alert(`¡Excelente! Pedido registrado. Especialista asignado: ${nuevoPedido.tecnico}`);
       } else {
-        // Si es solo producto, la alerta es simple
         alert(`¡Excelente! Pedido registrado.`);
       }
       

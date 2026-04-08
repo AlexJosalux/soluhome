@@ -7,26 +7,28 @@
       </h2>
     </div>
     
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-4 md:gap-12 mb-12 md:mb-20">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-4 md:gap-12 mb-8 md:mb-20">
       @for (paso of pasosProtocolo; track paso.id) {
-        <div class="group relative pt-4 md:pt-0">
+        <div class="group relative pt-4 md:pt-0 border-b border-stone-100 pb-4 md:border-none md:pb-0">
           <span class="absolute top-0 md:-top-4 left-0 text-4xl font-black text-stone-100/60 group-hover:text-orange-50 transition-colors -z-10">0{{paso.id}}</span>
           
-          <div class="relative z-10">
-            <div class="text-[#1e3a5a] mb-2 group-hover:text-[#f39200] transition-colors">
+          <div class="relative z-10 flex md:block items-start gap-4">
+            <div class="text-[#1e3a5a] mb-0 md:mb-2 group-hover:text-[#f39200] transition-colors shrink-0 mt-1">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" [attr.d]="paso.icon" />
               </svg>
             </div>
-            <h3 class="text-[12px] md:text-[13px] font-black text-[#1e3a5a] uppercase tracking-wider mb-1 leading-tight">
-              {{ paso.titulo }}
-            </h3>
-            <p class="text-stone-500 text-[13px] md:text-[14px] leading-snug font-medium mb-2">
-              {{ paso.descripcion }}
-            </p>
-            <a [routerLink]="paso.link" class="text-[9px] font-black uppercase tracking-widest text-stone-400 hover:text-[#f39200] transition-colors italic">
-              Detalles técnicos +
-            </a>
+            <div>
+              <h3 class="text-[12px] md:text-[13px] font-black text-[#1e3a5a] uppercase tracking-wider mb-1 leading-tight">
+                {{ paso.titulo }}
+              </h3>
+              <p class="text-stone-500 text-[13px] md:text-[14px] leading-snug font-medium mb-2">
+                {{ paso.descripcion }}
+              </p>
+              <a [routerLink]="paso.link" class="text-[9px] font-black uppercase tracking-widest text-stone-400 hover:text-[#f39200] transition-colors italic">
+                Detalles técnicos +
+              </a>
+            </div>
           </div>
         </div>
       }

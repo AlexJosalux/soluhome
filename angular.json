@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "veterinaria": {
+    "soluhome": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -57,10 +57,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "veterinaria:build:production"
+              "buildTarget": "soluhome:build:production"
             },
             "development": {
-              "buildTarget": "veterinaria:build:development"
+              "buildTarget": "soluhome:build:development"
             }
           },
           "defaultConfiguration": "development"

@@ -163,7 +163,6 @@
 /* Altura fija para móviles */
 @media (max-width: 768px) {
   .flex-col {
-    height: 600px;
   }
 }
 
