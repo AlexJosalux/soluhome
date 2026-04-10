@@ -1,7 +1,10 @@
-import { Component, inject, computed, ViewChild, ElementRef } from '@angular/core';
+import { Component, inject, computed, ViewChild, ElementRef, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { CarritoService } from '../../services/carrito';
+import { PedidoService } from '../../services/pedido';
+import { UsuarioService } from '../../services/usuario-service';
+import { AuthService } from '../../services/auth-service';
 
 @Component({
   selector: 'app-carrito-detalle',
@@ -10,43 +13,51 @@ import { CarritoService } from '../../services/carrito';
   templateUrl: './carrito-detalle.html'
 })
 export class CarritoDetalle {
-  // Inyección de servicios
   public carritoService = inject(CarritoService);
+  private pedidoService = inject(PedidoService);
+  private usuarioService = inject(UsuarioService);
+  private authService = inject(AuthService);
   private router = inject(Router);
 
-  // Referencia al input de fecha en el HTML (#fechaInput)
   @ViewChild('fechaInput') fechaInput?: ElementRef<HTMLInputElement>;
 
-  // --- LÓGICA DE FACTURACIÓN: IVA INCLUIDO (TALLER 2) ---
+  public tecnicoSugerido = signal<any>(null);
 
-  /**
-   * 1. Total Final: Es la suma directa de los precios (ya incluyen IVA).
-   */
+  constructor() {
+    // Monitoreo constante del carrito
+    effect(() => {
+      const items = this.carritoService.items();
+      const servicio = items.find(item => item.categoria || item.tipo === 'servicio');
+      
+      if (servicio) {
+        const categoria = servicio.categoria || '';
+        const categoriaOriginal = servicio.categoria || '';
+const categoriaFormateada = categoriaOriginal.charAt(0).toUpperCase() + categoriaOriginal.slice(1).toLowerCase();
+
+this.usuarioService.getTecnicosPorEspecialidad(categoriaFormateada).subscribe({
+          next: (tecnicos) => {
+            // Buscamos técnico disponible (usando 'disponible' en minúsculas como tu DB)
+            const disponible = tecnicos.find(t => t.disponible === true);
+            this.tecnicoSugerido.set(disponible || null);
+          },
+          error: (err) => console.error("Error buscando técnico sugerido", err)
+        });
+      } else {
+        this.tecnicoSugerido.set(null);
+      }
+    });
+  }
+
+  // --- LÓGICA DE FACTURACIÓN ---
   total = computed(() => {
     return this.carritoService.items().reduce((acc, item) => acc + (item.precio || 0), 0);
   });
 
-  /**
-   * 2. Subtotal (Base Imponible): Se extrae dividiendo el total para 1.12.
-   */
-  subtotal = computed(() => {
-    return this.total() / 1.12;
-  });
+  subtotal = computed(() => this.total() / 1.12);
+  iva = computed(() => this.total() - this.subtotal());
 
-  /**
-   * 3. IVA (12%): Es la diferencia entre el total pagado y la base imponible.
-   */
-  iva = computed(() => {
-    return this.total() - this.subtotal();
-  });
-
-  // -------------------------------------------------
-
-  // Detecta si hay servicios técnicos en el carrito para mostrar el calendario
   esServicioTecnico = computed(() => {
-    return this.carritoService.items().some(item => 
-      item.tipo === 'servicio' || item.tecnico
-    );
+    return this.carritoService.items().some(item => item.categoria || item.tipo === 'servicio');
   });
 
   eliminar(index: number) {
@@ -54,122 +65,63 @@ export class CarritoDetalle {
   }
 
   vaciar() {
-    if(confirm('¿Estás seguro de vaciar el carrito?')) {
+    if (confirm('¿Estás seguro de vaciar el carrito?')) {
       this.carritoService.items.set([]);
     }
-  }
-
-  /**
-   * FUNCIÓN DE APOYO PARA ASIGNACIÓN AUTOMÁTICA
-   */
-  private buscarTecnicoAutomatico(categoriaServicio: string): any {
-    const usuariosRaw = localStorage.getItem('usuarios_db') || '[]';
-    const listaTecnicos = JSON.parse(usuariosRaw).filter((u: any) => u.rol === 'tecnico');
-
-    if (listaTecnicos.length === 0) return null;
-
-    // Intenta buscar por coincidencia de especialidad
-    const match = listaTecnicos.find((t: any) => 
-      t.disponible && (categoriaServicio?.includes(t.especialidad) || t.especialidad?.includes(categoriaServicio))
-    );
-
-    // Si no hay match, retorna el primero disponible
-    return match || listaTecnicos.find((t: any) => t.disponible) || listaTecnicos[0];
   }
 
   confirmarPedido() {
-    // 1. OBTENER SESIÓN
-    const session = localStorage.getItem('user') || 
-                    localStorage.getItem('usuario') || 
-                    localStorage.getItem('user_session');
-    
-    let clienteData = { id: 'invitado', nombre: 'Cliente Invitado' };
+    const usuario = this.authService.usuarioLogueado();
 
-    if (session) {
-      try {
-        const userParsed = JSON.parse(session);
-        clienteData.id = userParsed.uid || userParsed.id || userParsed.localId || 'invitado';
-        clienteData.nombre = userParsed.nombre || userParsed.displayName || 'Cliente SoluHome';
-      } catch (e) {
-        console.error("Error al procesar la sesión:", e);
-      }
-    }
-
-    if (clienteData.id === 'invitado' && session) {
-        console.warn("Se detectó sesión pero no se pudo extraer un ID válido.");
-    }
-
-    // 2. CAPTURAR FECHA (Solo si es servicio técnico)
-    const fechaAgendada = this.fechaInput?.nativeElement.value;
-
-    if (this.esServicioTecnico() && !fechaAgendada) {
-      alert('Por favor, selecciona una fecha y hora para que nuestro técnico pueda visitarte.');
+    if (!usuario) {
+      alert('Debes iniciar sesión para finalizar la compra.');
+      this.router.navigate(['/login']);
       return;
     }
 
-    // --- LÓGICA DE ASIGNACIÓN CONDICIONAL ---
-    let tecnicoAsignado = null;
-    if (this.esServicioTecnico()) {
-      const primeraCategoria = this.carritoService.items()[0]?.categoria || '';
-      tecnicoAsignado = this.buscarTecnicoAutomatico(primeraCategoria);
+    const fechaAgendada = this.fechaInput?.nativeElement.value;
+    if (this.esServicioTecnico() && !fechaAgendada) {
+      alert('Por favor, selecciona una fecha y hora para la visita.');
+      return;
     }
-    // ---------------------------------------------------------
 
-    // 3. ESTRUCTURA DEL PEDIDO
-    const ahora = new Date().toISOString(); 
+    const procesarEnvio = (tecnicoReal: any = null) => {
+      // AJUSTE CLAVE: Concatenamos nombre y apellido según tu tabla PostgreSQL
+      const nombreCompletoTecnico = tecnicoReal 
+        ? `${tecnicoReal.nombre} ${tecnicoReal.apellido}` 
+        : 'No requiere';
 
-    const nuevoPedido = {
-      id: 'SOLU-' + Math.random().toString(36).substring(2, 7).toUpperCase(),
-      clienteId: clienteData.id,
-      clienteNombre: clienteData.nombre,
-      
-      tecnico: tecnicoAsignado ? tecnicoAsignado.nombre : null,
-      tecnicoId: tecnicoAsignado ? tecnicoAsignado.id : null,
-      
-      items: [...this.carritoService.items()],
-      
-      // VALORES DE FACTURACIÓN (Taller 2 - Desglose de IVA Incluido)
-      subtotal: this.subtotal(),
-      iva: this.iva(),
-      total: this.total(), 
-      
-      createdAt: ahora,             
-      updatedAt: ahora,             
-      metodoPago: 'Transferencia Directa', 
-      
-      fecha: ahora,                 
-      fechaAgenda: fechaAgendada || null,
-      tipo: this.esServicioTecnico() ? 'SERVICIO_TECNICO' : 'SOLO_PRODUCTO',
-      
-      estado: this.esServicioTecnico() ? (tecnicoAsignado ? 'EN_PROCESO' : 'PENDIENTE') : 'COMPLETADO'
-    };
+      const nuevoPedido = {
+        cliente: { id: Number(usuario.id) },
+        tecnicoNombre: nombreCompletoTecnico,
+        tecnicoId: tecnicoReal ? Number(tecnicoReal.id) : null,
+        detalles: this.carritoService.items().map(item => ({
+          itemId: item.id.toString(),
+          nombreItem: item.nombre || item.titulo,
+          precioUnitario: item.precio,
+          cantidad: 1
+        })),
+        subtotal: this.subtotal(),
+        iva: this.iva(),
+        total: this.total(),
+        fechaAgenda: fechaAgendada || new Date().toISOString(),
+        estado: this.esServicioTecnico() ? 'EN_PROCESO' : 'COMPLETADO',
+        metodoPago: 'Transferencia Directa'
+      };
 
-    // 4. GUARDAR EN LA BASE DE DATOS LOCAL
-    try {
-      const pedidosDB = JSON.parse(localStorage.getItem('pedidos_db') || '[]');
-      pedidosDB.push(nuevoPedido);
-      localStorage.setItem('pedidos_db', JSON.stringify(pedidosDB));
-
-      // 5. FINALIZAR CON ALERTA
-      if (nuevoPedido.tecnico) {
-        alert(`¡Excelente! Pedido registrado. Especialista asignado: ${nuevoPedido.tecnico}`);
-      } else {
-        alert(`¡Excelente! Pedido registrado.`);
-      }
-      
-      // Limpiamos el carrito
-      this.carritoService.items.set([]);
-      
-      // NAVEGACIÓN
-      this.router.navigate(['/usuario']).then(nav => {
-        if(!nav) {
-            this.router.navigate(['/perfil']);
+      this.pedidoService.postPedido(nuevoPedido).subscribe({
+        next: () => {
+          alert('¡Pedido registrado con éxito en SoluHome!');
+          this.carritoService.limpiar();
+          this.router.navigate(['/perfil']); // Te sugiero mandar al perfil para que vea su pedido
+        },
+        error: (err) => {
+          console.error("Error al guardar en PostgreSQL", err);
+          alert("Error al procesar el pedido. Verifica la conexión con el servidor.");
         }
       });
-      
-    } catch (error) {
-      console.error("Error al guardar el pedido:", error);
-      alert("Hubo un problema al procesar tu pedido.");
-    }
+    };
+
+    procesarEnvio(this.tecnicoSugerido());
   }
 }

@@ -1,17 +1,17 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router, RouterModule } from '@angular/router'; // Importamos RouterModule para el routerLink del HTML
+import { Router, RouterModule } from '@angular/router'; 
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { UsuarioService } from '../../services/usuario-service';
-import { AuthService } from '../../services/auth-service';
+import { AuthService } from '../../services/auth-service'; // Asegura la ruta correcta a tu servicio
 import { Usuario } from '../../models/usuario';
 
 @Component({
   selector: 'app-registro',
   standalone: true,
-  imports: [FormsModule, CommonModule, RouterModule], // Agregamos RouterModule aquí
+  imports: [FormsModule, CommonModule, RouterModule],
   templateUrl: './registro.html',
-  // styleUrls: ['./registro.css'] // Eliminamos la referencia a CSS si estamos usando Tailwind
+  styleUrl: './registro.css'
 })
 export class Registro {
   private readonly usuarioService = inject(UsuarioService);
@@ -21,24 +21,28 @@ export class Registro {
   // Estado de carga para el feedback visual en el botón
   public cargando = signal<boolean>(false);
 
-  // Objeto vinculado al formulario mediante [(ngModel)]
+  /**
+   * Objeto vinculado al formulario.
+   * Se inicializa con ROLE_CLIENTE para coincidir con la seguridad de Spring Boot.
+   */
   public nuevoUsuario: Usuario = {
     nombre: '',
     apellido: '',
     email: '',
     password: '',
-    rol: 'cliente' // Valor por defecto
+    rol: 'ROLE_CLIENTE' as any // Ajustado para consistencia con la DB
   };
 
   /**
-   * Método para establecer el rol visualmente desde el asistente
+   * Método para establecer el rol visualmente desde el asistente.
+   * @param rol Debe coincidir con los GrantedAuthorities de Java.
    */
-  public setRol(rol: 'cliente' | 'tecnico') {
-    this.nuevoUsuario.rol = rol;
+  public setRol(rol: 'cliente' | 'tecnico' | 'admin') {
+    this.nuevoUsuario.rol = rol as any;
   }
 
   /**
-   * Método para registrar al usuario en la base de datos de itelligent
+   * Envía los datos a la API de Spring Boot para persistencia en PostgreSQL.
    */
   registrar() {
     // 1. Validación básica de campos obligatorios
@@ -47,24 +51,23 @@ export class Registro {
       return;
     }
 
-    // 2. Activamos el estado de carga
+    // 2. Feedback visual
     this.cargando.set(true);
 
-    // 3. Enviamos los datos a la base de datos de PostgreSQL a través del servicio
+    // 3. Petición HTTP al Backend
     this.usuarioService.postUsuario(this.nuevoUsuario).subscribe({
       next: (res) => {
-        // Detenemos el estado de carga
         this.cargando.set(false);
         
-        // 4. Mostramos la alerta de confirmación
+        // 4. Confirmación al usuario
         alert('¡Cuenta de SoluHome creada con éxito! Por favor, inicia sesión para continuar.');
         
-        // 5. Redirección al componente de Login
+        // 5. Redirección al Login
         this.router.navigate(['/login']);
       },
       error: (err) => {
         console.error('Error en el registro de SoluHome:', err);
-        alert('Hubo un error al conectar con el servidor. Inténtalo de nuevo.');
+        alert('Hubo un error al conectar con el servidor. Revisa que el Backend esté activo.');
         this.cargando.set(false);
       }
     });

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Usuario } from '../models/usuario';
 
 @Injectable({
@@ -9,42 +9,38 @@ import { Usuario } from '../models/usuario';
 export class UsuarioService {
   private http = inject(HttpClient);
 
-  private API_USUARIOS = 'https://soluhome-2a5d9-default-rtdb.firebaseio.com/';
+  private API_USUARIOS = 'http://localhost:8080/api/usuarios';
 
-
-  //Metodo GET
   getUsuarios(): Observable<Usuario[]> {
-    return this.http.get<{ [key: string]: Usuario }>(`${this.API_USUARIOS}/users.json`).pipe(
-      map(response => {
-        if (!response) {
-          return [];
-        }
-        return Object.keys(response).map(id => {
-          const usuarioConId = { ...response[id], id: id };
-          return usuarioConId
-        })
-      })
-    )
+    return this.http.get<Usuario[]>(this.API_USUARIOS);
   }
 
-  //Metodo POST
-  postUsuario(usuario: Usuario):Observable<Usuario>{
-    return this.http.post<Usuario>(`${this.API_USUARIOS}/users.json`, usuario);
-  }
-
-  //Metodo PUT
-  putUsuario(id: string, usuario: Usuario): Observable<Usuario>{
-    return this.http.put<Usuario>(`${this.API_USUARIOS}/users/${id}.json`, usuario);
-  }
-
-  //Metodo PUT
-  deleteUsuario(id: string): Observable<Usuario>{
-    return this.http.delete<Usuario>(`${this.API_USUARIOS}/users/${id}.json`);
-  }
-  // Agrega este método dentro de tu UsuarioService
-getUsuarioById(id: string): Observable<Usuario> {
-  return this.http.get<Usuario>(`${this.API_USUARIOS}/users/${id}.json`).pipe(
-    map(res => ({ ...res, id }))
-  );
+  getTecnicosPorEspecialidad(especialidad: string): Observable<any[]> {
+  // Asegúrate de que la ruta coincida con tu @GetMapping en Java
+  return this.http.get<any[]>(`${this.API_USUARIOS}/search/tecnicos`, {
+    params: { especialidad: especialidad } 
+  });
 }
+
+  // --- MÉTODO AGREGADO PARA CORREGIR TU ERROR EN EL COMPONENTE ---
+  actualizarDisponibilidad(id: number, disponible: boolean): Observable<any> {
+    // Coincide con el @PatchMapping("/{id}/disponibilidad") que sugerimos para Java
+    return this.http.patch(`${this.API_USUARIOS}/${id}/disponibilidad`, { disponible });
+  }
+
+  getUsuarioById(id: number | string): Observable<Usuario> {
+    return this.http.get<Usuario>(`${this.API_USUARIOS}/${id}`);
+  }
+
+  postUsuario(usuario: Usuario): Observable<Usuario> {
+    return this.http.post<Usuario>(this.API_USUARIOS, usuario);
+  }
+
+  putUsuario(id: number | string, usuario: Usuario): Observable<Usuario> {
+    return this.http.put<Usuario>(`${this.API_USUARIOS}/${id}`, usuario);
+  }
+
+  deleteUsuario(id: number | string): Observable<void> {
+    return this.http.delete<void>(`${this.API_USUARIOS}/${id}`);
+  }
 }

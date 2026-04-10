@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, computed, signal } from '@angular/core'; // Añadido computed y signal
+import { Component, inject, OnInit, computed, signal } from '@angular/core'; 
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ProductoService } from '../../services/producto';
@@ -6,6 +6,7 @@ import { Producto } from '../../models/producto';
 import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CarritoService } from '../../services/carrito';
+import { AuthService } from '../../services/auth-service'; // Añadido para consistencia
 import { Router } from '@angular/router';
 
 @Component({
@@ -20,13 +21,13 @@ export class Productoshome implements OnInit {
   private filtroSubject = new BehaviorSubject<string>('');
   private productoSrv = inject(ProductoService);
   public carritoService = inject(CarritoService);
+  private authService = inject(AuthService); // Inyectamos tu nuevo servicio de autenticación
   private router = inject(Router);
   
   productoSeleccionado: Producto | null = null;
   public productoAnadidoId: string | null = null;
 
-  // --- MEJORA 1: Persistencia del estado "Añadido" ---
-  // Mantenemos una lista reactiva de los IDs que ya están en el carrito
+  // Persistencia del estado "Añadido" usando Signals
   public idsEnCarrito = computed(() => 
     this.carritoService.items().map(item => item.id)
   );
@@ -47,7 +48,6 @@ export class Productoshome implements OnInit {
     );
   }
 
-  // Helper para el HTML para mantener el botón naranja si ya existe en el carrito
   estaEnCarrito(id: string): boolean {
     return this.idsEnCarrito().includes(id);
   }
@@ -59,25 +59,20 @@ export class Productoshome implements OnInit {
   agregarAlCarrito(event: Event, item: Producto): void {
     if (event) event.stopPropagation(); 
 
-    // --- BLOQUEO DE SEGURIDAD ---
-    const usuario = localStorage.getItem('user'); 
+    // --- BLOQUEO DE SEGURIDAD USANDO TU NUEVA LÓGICA ---
+    const usuarioLogueado = this.authService.usuarioLogueado(); 
 
-    if (!usuario) {
+    if (!usuarioLogueado) {
       console.warn('⚠️ Usuario no autenticado. Redirigiendo...');
       this.router.navigate(['/login']);
       return; 
     }
 
-    // --- MEJORA 2: Validación de Stock (Simulada) ---
-    // Si el producto tuviera una propiedad stock, podrías bloquearlo aquí
-    // if (item.stock <= 0) { alert('Sin existencias'); return; }
-
-    // Evitamos duplicar si ya está añadido (opcional, según tu lógica de negocio)
     if (this.estaEnCarrito(item.id)) {
       console.log('El producto ya está en el presupuesto.');
     }
 
-    // --- MEJORA 3: Trazabilidad para la futura API ---
+    // --- PREPARACIÓN PARA POSTGRESQL ---
     const itemConAuditoria = {
       ...item,
       tipo: 'producto',

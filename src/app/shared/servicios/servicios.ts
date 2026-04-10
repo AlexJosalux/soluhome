@@ -1,8 +1,9 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core'; // Añadido computed
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { Servicio } from '../../models/servicio';
-import { DataService } from '../../services/data-servicios';
+import { DataService } from '../../services/data-servicios'; // Para MockAPI (Catálogo)
 import { CarritoService } from '../../services/carrito';
+import { UsuarioService } from '../../services/usuario-service'; // Tu nueva API de Spring Boot
 import { Router } from '@angular/router';
 
 @Component({
@@ -15,17 +16,17 @@ import { Router } from '@angular/router';
 export class Servicios implements OnInit {
   private dataService = inject(DataService);
   private carritoService = inject(CarritoService);
+  private usuarioService = inject(UsuarioService); // Inyectamos la conexión a la DB
   private router = inject(Router);
 
   public servicioAnadidoId: string | null = null;
 
-  // --- MEJORA 1: Persistencia del estado "Añadido" ---
-  // Creamos un Signal computado que mapea los IDs de lo que ya está en el carrito
+  // Seguimiento de lo que ya está en el carrito
   public idsEnCarrito = computed(() => 
     this.carritoService.items().map(item => item.id)
   );
 
-  // 1. SERVICIOS GENERALES
+  // 1. SERVICIOS LOCALES (Como respaldo o catálogo estático)
   public serviciosGenerales = signal<Servicio[]>([
     {
       id: 'gen-001',
@@ -76,17 +77,20 @@ export class Servicios implements OnInit {
   public listaServiciosApi = signal<Servicio[]>([]);
 
   ngOnInit() {
+    // Carga de catálogo desde MockAPI
     this.dataService.getServicios().subscribe({
       next: (data) => this.listaServiciosApi.set(data),
       error: (err) => console.error('Error cargando servicios:', err)
     });
   }
 
-  // Helper para el HTML: verifica si el ID ya existe en el carrito
   estaAnadido(id: string): boolean {
     return this.idsEnCarrito().includes(id);
   }
 
+  /**
+   * MÉTODO PRINCIPAL: Selecciona el servicio y busca un técnico real en PostgreSQL
+   */
   seleccionarServicio(servicio: Servicio) {
     const session = localStorage.getItem('user');
 
@@ -95,52 +99,41 @@ export class Servicios implements OnInit {
       return;
     }
 
-    // --- MEJORA 2: Validación de disponibilidad horaria (Simulada) ---
-    // Si quisieras evitar duplicados de servicios en el mismo "bloque", aquí iría la validación
-    if (this.estaAnadido(servicio.id)) {
-        return; // No hace nada si ya está en el carrito
-    }
+    if (this.estaAnadido(servicio.id)) return;
 
-    const tecnicoAsignado = this.asignarTecnicoAutomatico(servicio.categoria);
+    // Llamada a tu API de Spring Boot para asignar un técnico de la base de datos
+    this.usuarioService.getTecnicosPorEspecialidad(servicio.categoria).subscribe({
+      next: (tecnicos) => {
+        // Si hay técnicos en la DB, tomamos el primero, si no, dejamos pendiente
+        const tecnicoAsignado = tecnicos.length > 0 
+          ? `${tecnicos[0].nombre} ${tecnicos[0].apellido}` 
+          : 'Técnico por asignar';
+        
+        const tecnicoId = tecnicos.length > 0 ? tecnicos[0].id : null;
 
-    // --- MEJORA 3: Trazabilidad y Metadatos ---
-    const itemCarrito = {
-      ...servicio,
-      nombre: servicio.titulo,
-      precio: servicio.precioBase,
-      tipo: 'servicio',
-      tecnico: tecnicoAsignado,
-      fechaAsignada: null,
-      horaAsignada: null,
-      // Campos de auditoría para la futura base de datos
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      metodoPago: 'Pendiente de selección' // Se definirá en el carrito al finalizar
-    };
+        const itemCarrito = {
+          ...servicio,
+          nombre: servicio.titulo,
+          precio: servicio.precioBase,
+          tipo: 'servicio',
+          tecnico: tecnicoAsignado,
+          tecnicoId: tecnicoId, // ID real de la DB para la relación ManyToOne
+          fechaAsignada: null,
+          horaAsignada: null,
+          createdAt: new Date().toISOString(),
+          metodoPago: 'Pendiente de selección'
+        };
 
-    this.carritoService.agregar(itemCarrito);
-    this.servicioAnadidoId = servicio.id;
+        this.carritoService.agregar(itemCarrito);
+        this.servicioAnadidoId = servicio.id;
 
-    setTimeout(() => this.servicioAnadidoId = null, 2000);
-  }
-
-  private asignarTecnicoAutomatico(categoria: string): string {
-    const storedUsers = localStorage.getItem('usuarios_db');
-    
-    if (storedUsers) {
-      const todosLosUsuarios = JSON.parse(storedUsers);
-      
-      const tecnicosDisponibles = todosLosUsuarios.filter((u: any) => 
-        u.rol === 'tecnico' && 
-        u.especialidad === categoria && 
-        u.disponible === true
-      );
-
-      if (tecnicosDisponibles.length > 0) {
-        return tecnicosDisponibles[0].nombre;
+        setTimeout(() => this.servicioAnadidoId = null, 2000);
+      },
+      error: (err) => {
+        console.error('Error al conectar con la base de datos de técnicos:', err);
+        // Fallback: agregamos el servicio aunque falle la búsqueda del técnico
+        this.carritoService.agregar({...servicio, nombre: servicio.titulo, precio: servicio.precioBase});
       }
-    }
-
-    return 'Técnico por asignar';
+    });
   }
 }

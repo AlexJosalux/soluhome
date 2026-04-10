@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { UsuarioService } from '../../services/usuario-service'; // Asegúrate de tener este servicio
 
 @Component({
   selector: 'app-lista-tecnicos-admin',
@@ -8,52 +9,34 @@ import { CommonModule } from '@angular/common';
   templateUrl: './lista-tecnicos-admin.html',
   styleUrl: './lista-tecnicos-admin.css',
 })
-// ASEGÚRATE DE QUE TENGA 'export class'
 export class ListaTecnicosAdmin implements OnInit {
+  private usuarioService = inject(UsuarioService);
   public tecnicos: any[] = [];
 
   ngOnInit() {
-    this.inicializarOSincronizar();
+    this.cargarTecnicosDesdeDB();
   }
 
-  inicializarOSincronizar() {
-    const storedUsers = localStorage.getItem('usuarios_db');
-    
-    if (storedUsers) {
-      const todosLosUsuarios = JSON.parse(storedUsers);
-      this.tecnicos = todosLosUsuarios.filter((u: any) => u.rol === 'tecnico');
-      
-      if (this.tecnicos.length === 0) {
-        this.insertarTecnicosDefault(todosLosUsuarios);
-      }
-    } else {
-      this.insertarTecnicosDefault([]);
-    }
+  // Ahora llamamos a la base de datos real
+  cargarTecnicosDesdeDB() {
+    this.usuarioService.getUsuarios().subscribe({
+      next: (usuarios) => {
+        // Filtramos por el rol 'tecnico' que viene de PostgreSQL
+        this.tecnicos = usuarios.filter((u: any) => u.rol === 'tecnico');
+      },
+      error: (err) => console.error("Error al obtener técnicos de la DB", err)
+    });
   }
 
-  insertarTecnicosDefault(usuariosExistentes: any[]) {
-    const nuevosTecnicos = [
-      { id: 101, nombre: 'Carlos Ruiz', especialidad: 'Electricidad', disponible: true, rol: 'tecnico' },
-      { id: 102, nombre: 'Juan Pérez', especialidad: 'Plomería', disponible: true, rol: 'tecnico' },
-      { id: 103, nombre: 'Andrés Lumbi', especialidad: 'Pintura', disponible: true, rol: 'tecnico' },
-      { id: 104, nombre: 'Mateo Viteri', especialidad: 'Aire Acondicionado', disponible: true, rol: 'tecnico' },
-      { id: 105, nombre: 'Luis Tipán', especialidad: 'Línea Blanca', disponible: true, rol: 'tecnico' },
-      { id: 106, nombre: 'Kevin Silva', especialidad: 'Albañilería', disponible: true, rol: 'tecnico' }
-    ];
-
-    const bdActualizada = [...usuariosExistentes, ...nuevosTecnicos];
-    localStorage.setItem('usuarios_db', JSON.stringify(bdActualizada));
-    this.tecnicos = nuevosTecnicos;
-  }
-
-  toggleEstado(id: number) {
-    const storedUsers = JSON.parse(localStorage.getItem('usuarios_db') || '[]');
-    const index = storedUsers.findIndex((u: any) => u.id === id);
-
-    if (index !== -1) {
-      storedUsers[index].disponible = !storedUsers[index].disponible;
-      localStorage.setItem('usuarios_db', JSON.stringify(storedUsers));
-      this.tecnicos = storedUsers.filter((u: any) => u.rol === 'tecnico');
-    }
+  // Cambiar disponibilidad directamente en PostgreSQL
+  toggleEstado(tecnico: any) {
+    const nuevoEstado = !tecnico.disponible;
+    // Llamamos al servicio para actualizar en el Backend
+    this.usuarioService.actualizarDisponibilidad(tecnico.id, nuevoEstado).subscribe({
+      next: () => {
+        tecnico.disponible = nuevoEstado; // Actualizamos la vista
+      },
+      error: (err) => alert("No se pudo cambiar el estado en el servidor")
+    });
   }
 }

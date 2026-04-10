@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { PedidoService } from '../../services/pedido'; // Ajusta la ruta
+import { UsuarioService } from '../../services/usuario-service'; // Para buscar técnicos si fuera necesario
 
 @Component({
   selector: 'app-tabla-gestion-pedidos',
@@ -9,60 +11,62 @@ import { CommonModule } from '@angular/common';
   styleUrl: './tabla-gestion-pedidos.css',
 })
 export class TablaGestionPedidos implements OnInit {
+  // Inyectamos los servicios de la API
+  private pedidoService = inject(PedidoService);
+  private usuarioService = inject(UsuarioService);
+
   pedidos: any[] = [];
 
   ngOnInit() {
     this.cargarPedidos();
   }
 
+  /**
+   * REEMPLAZO: Ahora carga desde la Base de Datos PostgreSQL
+   */
   cargarPedidos() {
-    const data = localStorage.getItem('pedidos_db');
-    this.pedidos = data ? JSON.parse(data) : [];
+    this.pedidoService.getPedidos().subscribe({
+      next: (data) => {
+        this.pedidos = data;
+        console.log('Pedidos sincronizados con Postgres');
+      },
+      error: (err) => console.error('Error al traer pedidos de la DB', err)
+    });
   }
 
   /**
-   * ASIGNACIÓN AUTOMÁTICA INTELIGENTE
-   * Busca al técnico cuya especialidad coincida con el servicio del pedido
+   * ASIGNACIÓN CONECTADA A LA API
    */
   abrirAsignacion(pedido: any) {
-    // 1. Obtener los técnicos de la base de datos que ya tienes
-    const usuariosRaw = localStorage.getItem('usuarios_db') || '[]';
-    const todosLosUsuarios = JSON.parse(usuariosRaw);
-    const listaTecnicos = todosLosUsuarios.filter((u: any) => u.rol === 'tecnico');
+    // 1. Identificamos la categoría (ahora desde 'detalles' que es como viene de Java)
+    const categoriaServicio = pedido.detalles[0]?.nombreItem || '';
 
-    // 2. Identificar qué servicio compró el cliente (tomamos el primero del carrito)
-    const categoriaServicio = pedido.items[0]?.categoria || pedido.items[0]?.nombre;
+    // 2. Buscamos técnicos reales en la DB por especialidad
+    this.usuarioService.getTecnicosPorEspecialidad(categoriaServicio).subscribe({
+      next: (tecnicos) => {
+        // 3. Filtramos el primero disponible
+        const tecnicoAsignado = tecnicos.find(t => t.disponible === true);
 
-    // 3. Buscar un técnico que coincida con esa especialidad y esté disponible
-    // Nota: Usamos 'includes' o comparación directa según cómo guardes el nombre
-    let tecnicoAsignado = listaTecnicos.find((t: any) => 
-      t.disponible && (categoriaServicio.includes(t.especialidad) || t.especialidad.includes(categoriaServicio))
-    );
+        if (tecnicoAsignado) {
+          // 4. Actualizamos el objeto pedido con los datos del técnico real
+          pedido.tecnico = `${tecnicoAsignado.nombre} ${tecnicoAsignado.apellido}`;
+          pedido.estado = 'EN_PROCESO';
 
-    // 4. Si no encuentra uno por especialidad, asigna el primero disponible por defecto
-    if (!tecnicoAsignado) {
-      tecnicoAsignado = listaTecnicos.find((t: any) => t.disponible);
-    }
+          // 5. ENVIAMOS LA ACTUALIZACIÓN A JAVA (PUT)
+          // Asumiendo que tienes un método postPedido o putPedido en tu service
+          this.pedidoService.postPedido(pedido).subscribe({
+            next: () => {
+              alert(`¡Asignado! Técnico: ${tecnicoAsignado.nombre} (${tecnicoAsignado.especialidad})`);
+              this.cargarPedidos(); // Refrescamos la tabla desde la DB
+            },
+            error: (err) => console.error('Error al actualizar pedido en DB', err)
+          });
 
-    if (tecnicoAsignado) {
-      // 5. Inyectar los datos reales en el pedido
-      pedido.tecnico = tecnicoAsignado.nombre; // Esto es lo que lee Perfil.ts
-      pedido.tecnicoId = tecnicoAsignado.id;
-      pedido.estado = 'EN_PROCESO';
-
-      // 6. Guardar en pedidos_db
-      const pedidosBD = JSON.parse(localStorage.getItem('pedidos_db') || '[]');
-      const index = pedidosBD.findIndex((p: any) => p.id === pedido.id);
-
-      if (index !== -1) {
-        pedidosBD[index] = pedido;
-        localStorage.setItem('pedidos_db', JSON.stringify(pedidosBD));
-        
-        alert(`¡Asignación Automática! Técnico: ${tecnicoAsignado.nombre} (${tecnicoAsignado.especialidad})`);
-        this.cargarPedidos();
-      }
-    } else {
-      alert('No hay técnicos disponibles en este momento.');
-    }
+        } else {
+          alert('No hay técnicos disponibles en PostgreSQL para esta especialidad.');
+        }
+      },
+      error: (err) => console.error('Error al conectar con UsuarioService', err)
+    });
   }
 }

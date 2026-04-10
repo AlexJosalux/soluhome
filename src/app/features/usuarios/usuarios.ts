@@ -2,6 +2,7 @@ import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Perfil } from '../../shared/perfil/perfil';
 import { AuthService } from '../../services/auth-service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-usuarios',
@@ -11,21 +12,34 @@ import { AuthService } from '../../services/auth-service';
   styleUrl: './usuarios.css',
 })
 export class Usuarios {
-  // Inyectamos el servicio de autenticación para obtener los datos
   public authService = inject(AuthService);
+  private router = inject(Router);
 
-  // Creamos un Signal computado para obtener el perfil actual
   public perfil = computed(() => this.authService.usuarioLogueado());
 
-  // Creamos señales booleanas para usar en el HTML con @if
-  public esAdmin = computed(() => this.perfil()?.rol === 'admin');
-  public esTecnico = computed(() => this.perfil()?.rol === 'tecnico');
-  public esCliente = computed(() => this.perfil()?.rol === 'cliente');
-
   /**
-   * Método para cerrar sesión y limpiar el sistema
+   * SOLUCIÓN AL ERROR DE COMPARACIÓN:
+   * Usamos 'as string' para decirle a TypeScript que confíe en nosotros,
+   * ya que el valor viene de la base de datos PostgreSQL.
    */
+  public esAdmin = computed(() => {
+    const rol = this.perfil()?.rol as string;
+    return rol === 'admin' || rol === 'ROLE_ADMIN';
+  });
+  
+  public esTecnico = computed(() => {
+    const rol = this.perfil()?.rol as string;
+    return rol === 'tecnico' || rol === 'ROLE_TECNICO';
+  });
+  
+  public esCliente = computed(() => {
+    const rol = this.perfil()?.rol as string;
+    return rol === 'cliente' || rol === 'ROLE_CLIENTE';
+  });
+
   cerrarSesion() {
     this.authService.logout();
+    this.router.navigate(['/home'])
+    
   }
-}
+} 
