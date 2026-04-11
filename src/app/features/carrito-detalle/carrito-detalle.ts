@@ -27,16 +27,19 @@ export class CarritoDetalle {
     // Monitoreo constante del carrito
     effect(() => {
       const items = this.carritoService.items();
-      const servicio = items.find(item => item.categoria || item.tipo === 'servicio');
+      
+      // Ajuste: Buscar solo si es un servicio técnico real por categoría o tipo
+      const servicio = items.find(item => 
+        item.tipo === 'servicio' || 
+        ['Electricidad', 'Plomería', 'Pintura', 'Climatización'].includes(item.categoria)
+      );
       
       if (servicio) {
-        const categoria = servicio.categoria || '';
         const categoriaOriginal = servicio.categoria || '';
-const categoriaFormateada = categoriaOriginal.charAt(0).toUpperCase() + categoriaOriginal.slice(1).toLowerCase();
+        const categoriaFormateada = categoriaOriginal.charAt(0).toUpperCase() + categoriaOriginal.slice(1).toLowerCase();
 
-this.usuarioService.getTecnicosPorEspecialidad(categoriaFormateada).subscribe({
+        this.usuarioService.getTecnicosPorEspecialidad(categoriaFormateada).subscribe({
           next: (tecnicos) => {
-            // Buscamos técnico disponible (usando 'disponible' en minúsculas como tu DB)
             const disponible = tecnicos.find(t => t.disponible === true);
             this.tecnicoSugerido.set(disponible || null);
           },
@@ -56,8 +59,12 @@ this.usuarioService.getTecnicosPorEspecialidad(categoriaFormateada).subscribe({
   subtotal = computed(() => this.total() / 1.12);
   iva = computed(() => this.total() - this.subtotal());
 
+  // AJUSTE: Solo es servicio técnico si coincide con las categorías de asistencia
   esServicioTecnico = computed(() => {
-    return this.carritoService.items().some(item => item.categoria || item.tipo === 'servicio');
+    return this.carritoService.items().some(item => 
+      item.tipo === 'servicio' || 
+      ['Electricidad', 'Plomería', 'Pintura', 'Climatización'].includes(item.categoria)
+    );
   });
 
   eliminar(index: number) {
@@ -86,7 +93,6 @@ this.usuarioService.getTecnicosPorEspecialidad(categoriaFormateada).subscribe({
     }
 
     const procesarEnvio = (tecnicoReal: any = null) => {
-      // AJUSTE CLAVE: Concatenamos nombre y apellido según tu tabla PostgreSQL
       const nombreCompletoTecnico = tecnicoReal 
         ? `${tecnicoReal.nombre} ${tecnicoReal.apellido}` 
         : 'No requiere';
@@ -113,7 +119,7 @@ this.usuarioService.getTecnicosPorEspecialidad(categoriaFormateada).subscribe({
         next: () => {
           alert('¡Pedido registrado con éxito en SoluHome!');
           this.carritoService.limpiar();
-          this.router.navigate(['/perfil']); // Te sugiero mandar al perfil para que vea su pedido
+          this.router.navigate(['/perfil']);
         },
         error: (err) => {
           console.error("Error al guardar en PostgreSQL", err);
