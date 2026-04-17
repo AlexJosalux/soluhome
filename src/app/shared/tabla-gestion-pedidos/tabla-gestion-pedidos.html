@@ -1,39 +1,87 @@
-<div class="overflow-x-auto">
-  <table class="w-full text-left text-xs text-slate-300">
-    <thead>
-      <tr class="border-b border-slate-700 uppercase tracking-tighter">
-        <th class="pb-3">Cliente</th>
-        <th class="pb-3">Tipo</th>
-        <th class="pb-3">Estado</th>
-        <th class="pb-3 text-right">Acción</th>
-      </tr>
-    </thead>
-    <tbody class="divide-y divide-slate-800">
-      @for (p of pedidos; track p.id) {
-        <tr>
-          <td class="py-4 font-bold text-white">{{ p.clienteNombre }}</td>
-          <td class="py-4">
-            <span [class]="p.tipo === 'SERVICIO_TECNICO' ? 'text-blue-400' : 'text-slate-400'">
-              {{ p.tipo === 'SERVICIO_TECNICO' ? '🛠 Servicio' : '📦 Producto' }}
-            </span>
-          </td>
-          <td class="py-4">
-            <span class="px-2 py-1 rounded-md bg-slate-800 text-[9px] font-black"
-                  [ngClass]="{'text-orange-400': p.estado === 'PENDIENTE_ASIGNACION', 'text-green-400': p.estado === 'PAGADO' || p.estado === 'COMPLETADO'}">
-              {{ p.estado }}
-            </span>
-          </td>
-          <td class="py-4 text-right">
-            @if (p.tipo === 'SERVICIO_TECNICO' && !p.tecnicoId) {
-              <button (click)="abrirAsignacion(p)" class="text-blue-500 hover:underline font-black uppercase text-[9px]">
-                Asignar Técnico
-              </button>
-            } @else {
-              <span class="text-slate-600">--</span>
+<div class="container-fluid mt-4">
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h4 class="mb-0"><i class="bi bi-clipboard-data me-2"></i>Gestión de Pedidos y Servicios</h4>
+      <button class="btn btn-light btn-sm" (click)="cargarPedidos()">
+        <i class="bi bi-arrow-clockwise"></i> Actualizar
+      </button>
+    </div>
+    
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>ID Pedido</th>
+              <th>Cliente</th>
+              <th>Servicio / Categoría</th>
+              <th>Fecha Programada</th>
+              <th>Especialista Asignado</th>
+              <th>Estado</th>
+              <th class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (pedido of pedidos(); track pedido.id) {
+              <tr>
+                <td><strong>#{{ pedido.id }}</strong></td>
+                <td>
+                  <div class="fw-bold">{{ pedido.clienteNombre }}</div>
+                  <small class="text-muted">{{ pedido.clienteEmail }}</small>
+                </td>
+                <td>
+                  <div class="badge bg-secondary mb-1">{{ pedido.items[0]?.categoria }}</div>
+                  <div class="small">{{ pedido.items[0]?.nombre }}</div>
+                </td>
+                <td>
+                  <i class="bi bi-calendar-event me-1"></i>
+                  {{ pedido.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}
+                </td>
+                <td>
+                  @if (pedido.tecnicoNombre) {
+                    <div class="d-flex align-items-center">
+                      <i class="bi bi-person-badge-fill text-primary me-2"></i>
+                      <span>{{ pedido.tecnicoNombre }}</span>
+                    </div>
+                  } @else {
+                    <span class="text-danger small italic">
+                      <i class="bi bi-exclamation-triangle-fill"></i> Sin asignar
+                    </span>
+                  }
+                </td>
+                <td>
+                  <span [ngClass]="{
+                    'badge bg-warning text-dark': pedido.estado === 'PENDIENTE',
+                    'badge bg-info': pedido.estado === 'EN_PROCESO',
+                    'badge bg-success': pedido.estado === 'COMPLETADO'
+                  }">
+                    {{ pedido.estado }}
+                  </span>
+                </td>
+                <td class="text-center">
+                  @if (!pedido.tecnicoId) {
+                    <button class="btn btn-outline-primary btn-sm" 
+                            (click)="ejecutarAsignacionAutomatica(pedido)">
+                      Asignación Auto
+                    </button>
+                  } @else {
+                    <button class="btn btn-light btn-sm text-primary" title="Ver Detalles">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="text-center py-5 text-muted">
+                  <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                  No hay pedidos registrados en el sistema.
+                </td>
+              </tr>
             }
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>

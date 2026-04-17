@@ -4,7 +4,7 @@ import { NavBar } from './shared/nav-bar/nav-bar';
 import { HomePage } from './features/home-page/home-page';
 import { Footer } from "./shared/footer/footer";
 import { ConsultasPage } from './features/consultas-page/consultas-page';
-import { CarritoService } from './services/carrito';
+import { CarritoService } from './services/carrito-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
 

@@ -17,131 +17,108 @@ import { ListaTecnicosAdmin } from '../lista-tecnicos-admin/lista-tecnicos-admin
   styleUrl: './perfil.css'
 })
 export class Perfil implements OnInit, OnChanges {
-  // Recibe los datos desde el componente padre (Usuarios)
   @Input() data: any;
-  mensajeEnviado: boolean = false;
 
-  // Estructura inicial para evitar errores de 'undefined' en el HTML
-  usuarioActual: any = { 
+  public mensajeEnviado: boolean = false; 
+  
+  public usuarioActual: any = { 
     id: '', 
     nombre: '', 
     rol: '', 
     pedidos: [] 
   };
   
-  trabajosAsignados: any[] = [];
-  
-  // 1. DECLARACIÓN DE LA PROPIEDAD PARA EL ADMIN (Esto quita el error TS2339)
-  todosLosPedidos: any[] = [];
+  public trabajosAsignados: any[] = [];
+  public todosLosPedidos: any[] = [];
 
   constructor() {}
 
-  /**
-   * Detecta cambios en el Input 'data'. 
-   * Si el AuthService en el padre actualiza el usuario, este método se dispara.
-   */
   ngOnChanges(changes: SimpleChanges) {
     if (changes['data'] && changes['data'].currentValue) {
-      this.usuarioActual = { ...changes['data'].currentValue };
-      // Si el objeto no tiene el array de pedidos, lo inicializamos
-      if (!this.usuarioActual.pedidos) {
-        this.usuarioActual.pedidos = [];
-      }
-      this.cargarMisPedidos();
+      this.procesarUsuario(changes['data'].currentValue);
     }
   }
 
   ngOnInit() {
-    // Intento de carga desde LocalStorage por si el Input no llega a tiempo
-    this.verificarSesionLocal();
+    // Intentar recuperar sesión si no hay data por Input
+    const session = this.obtenerSesionDeStorage();
+    if (this.data) {
+      this.procesarUsuario(this.data);
+    } else if (session) {
+      this.procesarUsuario(session);
+    }
+  }
+
+  private obtenerSesionDeStorage() {
+    const raw = localStorage.getItem('usuario') || 
+                localStorage.getItem('user_session') || 
+                localStorage.getItem('user');
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+
+  private procesarUsuario(user: any) {
+    // CORRECCIÓN: Aseguramos que el nombre y el ID se mapeen sin importar el origen
+    this.usuarioActual = { 
+      ...user, 
+      id: user.id || user.uid || user.localId,
+      nombre: user.nombre || user.displayName || 'Usuario SoluHome',
+      rol: (user.rol || 'cliente').toLowerCase().trim() 
+    };
+    
+    // Si no tiene el array de pedidos, lo inicializamos para evitar errores en el @for
+    if (!this.usuarioActual.pedidos) {
+      this.usuarioActual.pedidos = [];
+    }
+    
+    console.log("Perfil cargado para:", this.usuarioActual.nombre, "con Rol:", this.usuarioActual.rol);
     this.cargarMisPedidos();
   }
 
-  /**
-   * Recupera la sesión directamente de LocalStorage como respaldo
-   */
-  private verificarSesionLocal() {
-    const session = localStorage.getItem('usuario') || 
-                    localStorage.getItem('user_session') || 
-                    localStorage.getItem('user');
-    
-    if (!this.data && session) {
-      try {
-        this.usuarioActual = JSON.parse(session);
-      } catch (e) {
-        console.error("Error al parsear la sesión en Perfil", e);
-      }
-    }
+  enviarMensaje(): void {
+    this.mensajeEnviado = true;
+    setTimeout(() => this.mensajeEnviado = false, 5000);
   }
 
-  /**
-   * Filtra la base de datos de pedidos local (pedidos_db)
-   */
   cargarMisPedidos() {
+    // Leemos la "base de datos" local
     const pedidosRaw = localStorage.getItem('pedidos_db');
     const todosLosPedidosBD = JSON.parse(pedidosRaw || '[]'); 
     
-    // Obtenemos el ID del usuario actual de forma segura (String y sin espacios)
-    const currentUserId = String(
-      this.usuarioActual.id || 
-      this.usuarioActual.uid || 
-      this.usuarioActual.localId || ''
-    ).trim();
+    // El ID debe ser String para que el filtro '===' no falle por tipo (número vs string)
+    const currentUserId = String(this.usuarioActual.id || '').trim();
 
-    // Log de depuración para la consola (F12)
-    console.log("Intentando cargar pedidos para el usuario:", currentUserId);
-
-    // Lógica para CLIENTES
-    if (this.usuarioActual.rol === 'cliente') {
-      const filtrados = todosLosPedidosBD.filter((p: any) => {
-        const pClienteId = String(p.clienteId || '').trim();
-        return pClienteId === currentUserId && currentUserId !== '';
-      });
-
-      // ARREGLO IMPLEMENTADO PARA CLIENTE:
-      this.usuarioActual.pedidos = filtrados.map((p: any) => ({
-        ...p,
-        // Aseguramos que el pedido del cliente lleve su nombre para el HTML
-        clienteNombre: p.clienteNombre || this.usuarioActual.nombre || 'Cliente SoluHome',
-        
-        // NORMALIZACIÓN DEL ESPECIALISTA PARA EL CLIENTE:
-        // Buscamos en todas las propiedades posibles donde guardaste el dato quemado
-        tecnico: p.tecnico || 
-                 p.especialista || 
-                 p.nombreTecnico || 
-                 'Pendiente de asignar'
-      })).reverse();
-      
-      console.log("Pedidos de cliente encontrados:", this.usuarioActual.pedidos.length);
-    } 
-    
-    // Lógica para TÉCNICOS
-    else if (this.usuarioActual.rol === 'tecnico') {
-      this.trabajosAsignados = todosLosPedidosBD.filter((p: any) => {
-        const pTecnicoId = String(p.tecnicoId || '').trim();
-        return pTecnicoId === currentUserId && currentUserId !== '';
-      });
-      console.log("Trabajos de técnico encontrados:", this.trabajosAsignados.length);
+    if (!currentUserId) {
+      console.warn("No se pudo obtener el ID del usuario actual para cargar pedidos.");
+      return;
     }
 
-    // 2. LÓGICA PARA ADMIN (Actualizada para capturar especialistas quemados)
+    if (this.usuarioActual.rol === 'cliente') {
+      this.usuarioActual.pedidos = todosLosPedidosBD
+        .filter((p: any) => String(p.clienteId || '').trim() === currentUserId)
+        .map((p: any) => ({
+          ...p,
+          // Aseguramos que cada pedido tenga datos de visualización
+          clienteNombre: p.clienteNombre || this.usuarioActual.nombre,
+          tecnico: p.tecnico || p.especialista || 'Pendiente de asignar',
+          items: p.items || []
+        })).reverse();
+    } 
+    else if (this.usuarioActual.rol === 'tecnico') {
+      this.trabajosAsignados = todosLosPedidosBD
+        .filter((p: any) => String(p.tecnicoId || '').trim() === currentUserId)
+        .reverse();
+    }
     else if (this.usuarioActual.rol === 'admin') {
-      this.todosLosPedidos = todosLosPedidosBD.map((pedido: any) => {
-        return {
-          ...pedido,
-          // Unifica el nombre del cliente
-          clienteNombre: pedido.clienteNombre || pedido.usuarioNombre || 'Cliente Registrado',
-          
-          // IMPLEMENTACIÓN PARA EL ESPECIALISTA:
-          // Buscamos en todas las propiedades posibles donde guardaste el dato quemado
-          tecnico: pedido.tecnico || 
-                   pedido.especialista || 
-                   pedido.nombreTecnico || 
-                   'Pendiente de asignar'
-        };
-      }).reverse();
-      
-      console.log("Vista Admin: Pedidos procesados con especialistas:", this.todosLosPedidos);
+      this.todosLosPedidos = todosLosPedidosBD.map((pedido: any) => ({
+        ...pedido,
+        clienteNombre: pedido.clienteNombre || 'Cliente Registrado',
+        tecnico: pedido.tecnico || pedido.especialista || 'Pendiente de asignar'
+      })).reverse();
     }
   }
 }

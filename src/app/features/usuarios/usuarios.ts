@@ -14,13 +14,13 @@ export class Usuarios {
   // Inyectamos el servicio de autenticación para obtener los datos
   public authService = inject(AuthService);
 
-  // Creamos un Signal computado para obtener el perfil actual
-  public perfil = computed(() => this.authService.usuarioLogueado());
+  // Obtenemos el perfil desde el signal del servicio
+public perfil = computed(() => this.authService.usuarioLogueado());
 
-  // Creamos señales booleanas para usar en el HTML con @if
-  public esAdmin = computed(() => this.perfil()?.rol === 'admin');
-  public esTecnico = computed(() => this.perfil()?.rol === 'tecnico');
-  public esCliente = computed(() => this.perfil()?.rol === 'cliente');
+// Comparamos con los valores EXACTOS de tu interfaz Usuarios
+public esAdmin = computed(() => this.perfil()?.rol === 'ROLE_ADMIN');
+public esTecnico = computed(() => this.perfil()?.rol === 'ROLE_TECNICO');
+public esCliente = computed(() => this.perfil()?.rol === 'ROLE_CLIENTE');
 
   /**
    * Método para cerrar sesión y limpiar el sistema

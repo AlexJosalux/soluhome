@@ -1,8 +1,8 @@
 import { CanDeactivateFn } from '@angular/router';
 import { inject } from '@angular/core';
-import { CarritoService } from '../services/carrito'; // Ajusta según tu carpeta de servicios
+import { CarritoService } from '../services/carrito-service';
 
-export const candeactivateGuard: CanDeactivateFn<any> = (component) => {
+export const candeactivateGuard: CanDeactivateFn<unknown> = () => {
   const carritoService = inject(CarritoService);
 
   // Si el carrito tiene productos, preguntamos antes de dejar salir al usuario

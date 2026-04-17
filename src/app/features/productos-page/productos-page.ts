@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Productoshome } from '../../shared/productoshome/productoshome';
-import { ProductoService } from '../../services/producto'; // Importación según tu imagen
+import { ProductoService } from '../../services/producto-service';
 import { Producto } from '../../models/producto';
 import { Observable } from 'rxjs/internal/Observable';
 

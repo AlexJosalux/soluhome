@@ -1,84 +1,73 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { Router } from '@angular/router';
-import { UsuarioService } from './usuario-service';
-import { Usuario } from '../models/usuario'; // Asegúrate de importar tu interfaz
-import { map, Observable, tap } from 'rxjs';
+import { inject, Injectable, signal, computed } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
+import { Usuarios } from '../models/usuario'; 
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message: string;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private router = inject(Router);
-  private servicioUsuario = inject(UsuarioService);
+  private readonly API_URL = 'http://localhost:8080/api/auth';
+  private http = inject(HttpClient);
 
-  // Signals reactivos para el estado global de la app
-  public sesionIniciada = signal<boolean>(localStorage.getItem('sesion') === 'true');
-  public rolActual = signal<string | null>(localStorage.getItem('rol'));
-  
-  // Nuevo Signal para obtener el objeto usuario completo fácilmente
-  public usuarioLogueado = signal<Usuario | null>(
-    localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null
+  // --- SIGNALS ---
+  public sesionIniciada = signal<boolean>(localStorage.getItem('soluhome_sesion') === 'true');
+
+  public usuarioLogueado = signal<Usuarios | null>(
+    localStorage.getItem('soluhome_user') ? JSON.parse(localStorage.getItem('soluhome_user')!) : null
   );
 
+  public rolActual = computed(() => this.usuarioLogueado()?.rol || null);
+
   /**
-   * Intenta iniciar sesión comparando credenciales con la lista de usuarios.
+   * LOGIN: Autenticación con Spring Boot
    */
-  login(email: string, password: string): Observable<boolean> {
-    return this.servicioUsuario.getUsuarios().pipe(
-      map(usuarios => {
-        const usuarioCoincide = usuarios.find(u => u.email === email && u.password === password);
-
-        if (usuarioCoincide) {
-          // Guardar estado en LocalStorage
-          localStorage.setItem('sesion', 'true');
-          localStorage.setItem('user', JSON.stringify(usuarioCoincide));
-          localStorage.setItem('rol', usuarioCoincide.rol);
-
-          // Actualizar Signals reactivos
-          this.rolActual.set(usuarioCoincide.rol);
-          this.usuarioLogueado.set(usuarioCoincide);
-          this.sesionIniciada.set(true);
-          
-          return true;
-        }
-        return false;
-      })
-    );
+  login(email: string, password: string): Observable<ApiResponse<Usuarios>> {
+    return this.http.post<ApiResponse<Usuarios>>(`${this.API_URL}/login`, { email, password })
+      .pipe(
+        tap(res => {
+          if (res.success && res.data) {
+            this.guardarSesion(res.data);
+          }
+        })
+      );
   }
 
   /**
-   * Método para obtener el usuario actual desde cualquier componente
+   * REGISTER: Creación de nuevos usuarios (NUEVO MÉTODO)
+   * Recibe un objeto parcial de Usuarios y devuelve la respuesta del servidor
    */
-  getUsuarioActual(): Usuario | null {
-    return this.usuarioLogueado();
+  register(datos: Partial<Usuarios>): Observable<ApiResponse<Usuarios>> {
+    return this.http.post<ApiResponse<Usuarios>>(`${this.API_URL}/register`, datos);
   }
 
   /**
-   * Limpia la sesión y redirige al inicio
+   * Persistencia y actualización de Signals
+   */
+  guardarSesion(usuario: Usuarios): void {
+    localStorage.setItem('soluhome_sesion', 'true');
+    localStorage.setItem('soluhome_user', JSON.stringify(usuario));
+    
+    this.usuarioLogueado.set(usuario);
+    this.sesionIniciada.set(true);
+  }
+
+  /**
+   * LOGOUT: Limpieza total
    */
   logout(): void {
-    // Limpiar almacenamiento
-    localStorage.removeItem('sesion');
-    localStorage.removeItem('user');
-    localStorage.removeItem('rol');
-
-    // Resetear Signals
-    this.sesionIniciada.set(false);
-    this.rolActual.set(null);
+    localStorage.clear();
     this.usuarioLogueado.set(null);
-
-    // Redirección nítida al login
-    this.router.navigate(['/login']);
-
+    this.sesionIniciada.set(false);
   }
-  estaAutenticado(): boolean {
-  return this.sesionIniciada();
-}
 
-/**
- * Retorna el rol para proteger vistas administrativas
- */
-obtenerRol(): string | null {
-  return this.rolActual();
-}
+  // Helpers de rol para lógica rápida
+  esAdmin(): boolean { return this.rolActual() === 'ROLE_ADMIN'; }
+  esTecnico(): boolean { return this.rolActual() === 'ROLE_TECNICO'; }
 }
