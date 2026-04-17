@@ -1,11 +1,10 @@
-export interface Usuario {
-  id?: string;
-  uid?: string;
-  nombre: string;
-  apellido: string;
+export interface Usuarios {
+  id?: number;
+  nombreCompleto: string;
+  password: string;
   email: string;
-  rol: 'cliente' | 'admin' | 'tecnico';
-  password?: string; 
-  
-  pedidos?: any[]; // Aquí vendrán los datos de la base de datos
+  telefono?: string;
+  direccion?: string;
+  rol: 'ROLE_ADMIN' | 'ROLE_CLIENTE' | 'ROLE_TECNICO';
+  especialidad?: string;
 }

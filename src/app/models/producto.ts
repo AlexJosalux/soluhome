@@ -1,9 +1,10 @@
 export interface Producto {
-  id: string;
+  id?: number;
+  sku: string;
   nombre: string;
-  precio: number;
-  categoria: string;
-  imagen: string;
   descripcion: string;
+  precio: number;
   stock: number;
+  imagenUrl?: string;
+  categoria: string;
 }

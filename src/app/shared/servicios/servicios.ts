@@ -1,146 +1,82 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core'; // Añadido computed
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
+import { RouterLink, Router } from '@angular/router';
+import { ServicioService } from '../../services/servicio-service';
+import { CarritoService } from '../../services/carrito-service';
+import { AuthService } from '../../services/auth-service';
 import { Servicio } from '../../models/servicio';
-import { DataService } from '../../services/data-servicios';
-import { CarritoService } from '../../services/carrito';
-import { Router } from '@angular/router';
+import { CarritoItem } from '../../models/carrito-item';
 
 @Component({
   selector: 'app-servicios',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './servicios.html',
   styleUrl: './servicios.css',
 })
 export class Servicios implements OnInit {
-  private dataService = inject(DataService);
-  private carritoService = inject(CarritoService);
-  private router = inject(Router);
+  private readonly servicioSrv = inject(ServicioService);
+  public readonly carritoService = inject(CarritoService);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
-  public servicioAnadidoId: string | null = null;
+  // --- ESTADOS REACTIVOS (SIGNALS) ---
+  public servicioAnadidoId = signal<number | null>(null);
 
-  // --- MEJORA 1: Persistencia del estado "Añadido" ---
-  // Creamos un Signal computado que mapea los IDs de lo que ya está en el carrito
+  // --- LÓGICA DE DATOS ---
+  // Obtenemos los servicios del signal del ServicioService
+  public listaServicios = computed(() => this.servicioSrv.servicios());
+
+  // Rastreamos los IDs para el feedback visual en los botones
   public idsEnCarrito = computed(() => 
-    this.carritoService.items().map(item => item.id)
+    this.carritoService.items()
+      .filter(item => item.tipo === 'SERVICIO')
+      .map(item => item.id)
   );
 
-  // 1. SERVICIOS GENERALES
-  public serviciosGenerales = signal<Servicio[]>([
-    {
-      id: 'gen-001',
-      titulo: 'Revisión Eléctrica',
-      categoria: 'Electricidad',
-      imagen: 'https://i.postimg.cc/WbwLMBdG/revisionelec.png',
-      precioBase: 10.00,
-      precioPost: 0,
-      fechaServicio: new Date().toISOString(),
-      incluye: ['Revisión de tablero', 'Prueba de voltaje', 'Informe técnico'],
-      estado: 'Disponible'
-    },
-    {
-      id: 'gen-002',
-      titulo: 'Plomería',
-      categoria: 'Plomería',
-      imagen: 'https://i.postimg.cc/HkkKbVGS/plomeria.png',
-      precioBase: 10.00,
-      precioPost: 0,
-      fechaServicio: new Date().toISOString(),
-      incluye: ['Detección de fugas', 'Reparación de tubería básica', 'Limpieza de filtro'],
-      estado: 'Disponible'
-    },
-    {
-      id: 'gen-003',
-      titulo: 'Pintura de Interiores',
-      categoria: 'Pintura',
-      imagen: 'https://i.postimg.cc/MKd3Zqc5/pintura.png',
-      precioBase: 10.00,
-      precioPost: 0,
-      fechaServicio: new Date().toISOString(),
-      incluye: ['Protección de muebles', 'Resane de grietas', 'Aplicación de dos manos de pintura'],
-      estado: 'Disponible'
-    },
-    {
-      id: 'gen-004',
-      titulo: 'Mantenimiento de Línea Blanca', 
-      categoria: 'Línea Blanca',
-      imagen: 'https://i.postimg.cc/YSgxFH9w/lineablanca.png',
-      precioBase: 10.00,
-      precioPost: 0,
-      fechaServicio: new Date().toISOString(),
-      incluye: ['Limpieza de filtros', 'Revisión de motor', 'Engrasado'],
-      estado: 'Disponible'
-    }
-  ]);
-
-  public listaServiciosApi = signal<Servicio[]>([]);
-
-  ngOnInit() {
-    this.dataService.getServicios().subscribe({
-      next: (data) => this.listaServiciosApi.set(data),
-      error: (err) => console.error('Error cargando servicios:', err)
+  ngOnInit(): void {
+    // Carga inicial desde la API de Spring Boot
+    this.servicioSrv.getServicios().subscribe({
+      error: (err) => console.error('Error al cargar servicios en SoluHome:', err)
     });
   }
 
-  // Helper para el HTML: verifica si el ID ya existe en el carrito
-  estaAnadido(id: string): boolean {
+  /**
+   * Verifica si un servicio ya está en el presupuesto
+   */
+  estaAnadido(id: number | undefined): boolean {
+    if (id === undefined) return false;
     return this.idsEnCarrito().includes(id);
   }
 
-  seleccionarServicio(servicio: Servicio) {
-    const session = localStorage.getItem('user');
+  /**
+   * Agrega el servicio al carrito respetando tu interfaz Servicio
+   */
+  seleccionarServicio(servicio: Servicio): void {
+  // 1. Verificación de seguridad: si no hay ID, no hacemos nada.
+  // Esto quita todos los errores de "number | undefined" de abajo.
+  if (!servicio.id) return;
 
-    if (!session) {
-      this.router.navigate(['/login']);
-      return;
-    }
+  if (this.estaAnadido(servicio.id)) return;
 
-    // --- MEJORA 2: Validación de disponibilidad horaria (Simulada) ---
-    // Si quisieras evitar duplicados de servicios en el mismo "bloque", aquí iría la validación
-    if (this.estaAnadido(servicio.id)) {
-        return; // No hace nada si ya está en el carrito
-    }
+  // 3. Mapeo con los nombres correctos de tu interfaz
+  const itemCarrito: CarritoItem = {
+    id: servicio.id,
+    nombre: servicio.nombre,       // ANTES: titulo (ERROR)
+    precio: servicio.precioBase,
+    cantidad: 1,
+    imagenUrl: servicio.imagenUrl,  // ANTES: imagen (ERROR)
+    tipo: 'SERVICIO',
+    categoria: servicio.categoria,
+    tecnicoId: null,
+    fechaAgenda: undefined
+  };
 
-    const tecnicoAsignado = this.asignarTecnicoAutomatico(servicio.categoria);
+  // 4. Ejecución
+  this.carritoService.agregar(itemCarrito);
 
-    // --- MEJORA 3: Trazabilidad y Metadatos ---
-    const itemCarrito = {
-      ...servicio,
-      nombre: servicio.titulo,
-      precio: servicio.precioBase,
-      tipo: 'servicio',
-      tecnico: tecnicoAsignado,
-      fechaAsignada: null,
-      horaAsignada: null,
-      // Campos de auditoría para la futura base de datos
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      metodoPago: 'Pendiente de selección' // Se definirá en el carrito al finalizar
-    };
-
-    this.carritoService.agregar(itemCarrito);
-    this.servicioAnadidoId = servicio.id;
-
-    setTimeout(() => this.servicioAnadidoId = null, 2000);
-  }
-
-  private asignarTecnicoAutomatico(categoria: string): string {
-    const storedUsers = localStorage.getItem('usuarios_db');
-    
-    if (storedUsers) {
-      const todosLosUsuarios = JSON.parse(storedUsers);
-      
-      const tecnicosDisponibles = todosLosUsuarios.filter((u: any) => 
-        u.rol === 'tecnico' && 
-        u.especialidad === categoria && 
-        u.disponible === true
-      );
-
-      if (tecnicosDisponibles.length > 0) {
-        return tecnicosDisponibles[0].nombre;
-      }
-    }
-
-    return 'Técnico por asignar';
-  }
+  // 5. Feedback visual (Ya no dará error porque validamos el id arriba)
+  this.servicioAnadidoId.set(servicio.id);
+  setTimeout(() => this.servicioAnadidoId.set(null), 2000);
+}
 }

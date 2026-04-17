@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { Usuarios } from '../../models/usuario';
 
 @Component({
   selector: 'app-lista-tecnicos-admin',
@@ -8,52 +10,26 @@ import { CommonModule } from '@angular/common';
   templateUrl: './lista-tecnicos-admin.html',
   styleUrl: './lista-tecnicos-admin.css',
 })
-// ASEGÚRATE DE QUE TENGA 'export class'
 export class ListaTecnicosAdmin implements OnInit {
-  public tecnicos: any[] = [];
+  private http = inject(HttpClient);
+  private readonly API_URL = 'http://localhost:8080/api/usuarios';
 
-  ngOnInit() {
-    this.inicializarOSincronizar();
+  // Signal con todos los usuarios de la base de datos
+  public usuariosDb = signal<Usuarios[]>([]);
+
+  // Filtro automático: Solo extrae los técnicos para la vista administrativa
+  public listaTecnicos = computed(() => 
+    this.usuariosDb().filter(u => u.rol === 'ROLE_TECNICO')
+  );
+
+  ngOnInit(): void {
+    this.cargarUsuarios();
   }
 
-  inicializarOSincronizar() {
-    const storedUsers = localStorage.getItem('usuarios_db');
-    
-    if (storedUsers) {
-      const todosLosUsuarios = JSON.parse(storedUsers);
-      this.tecnicos = todosLosUsuarios.filter((u: any) => u.rol === 'tecnico');
-      
-      if (this.tecnicos.length === 0) {
-        this.insertarTecnicosDefault(todosLosUsuarios);
-      }
-    } else {
-      this.insertarTecnicosDefault([]);
-    }
-  }
-
-  insertarTecnicosDefault(usuariosExistentes: any[]) {
-    const nuevosTecnicos = [
-      { id: 101, nombre: 'Carlos Ruiz', especialidad: 'Electricidad', disponible: true, rol: 'tecnico' },
-      { id: 102, nombre: 'Juan Pérez', especialidad: 'Plomería', disponible: true, rol: 'tecnico' },
-      { id: 103, nombre: 'Andrés Lumbi', especialidad: 'Pintura', disponible: true, rol: 'tecnico' },
-      { id: 104, nombre: 'Mateo Viteri', especialidad: 'Aire Acondicionado', disponible: true, rol: 'tecnico' },
-      { id: 105, nombre: 'Luis Tipán', especialidad: 'Línea Blanca', disponible: true, rol: 'tecnico' },
-      { id: 106, nombre: 'Kevin Silva', especialidad: 'Albañilería', disponible: true, rol: 'tecnico' }
-    ];
-
-    const bdActualizada = [...usuariosExistentes, ...nuevosTecnicos];
-    localStorage.setItem('usuarios_db', JSON.stringify(bdActualizada));
-    this.tecnicos = nuevosTecnicos;
-  }
-
-  toggleEstado(id: number) {
-    const storedUsers = JSON.parse(localStorage.getItem('usuarios_db') || '[]');
-    const index = storedUsers.findIndex((u: any) => u.id === id);
-
-    if (index !== -1) {
-      storedUsers[index].disponible = !storedUsers[index].disponible;
-      localStorage.setItem('usuarios_db', JSON.stringify(storedUsers));
-      this.tecnicos = storedUsers.filter((u: any) => u.rol === 'tecnico');
-    }
+  cargarUsuarios(): void {
+    this.http.get<Usuarios[]>(this.API_URL).subscribe({
+      next: (data) => this.usuariosDb.set(data),
+      error: (err) => console.error('Error al conectar con la DB de SoluHome:', err)
+    });
   }
 }

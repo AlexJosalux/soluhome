@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { Usuarios } from '../../models/usuario'; // Tu interfaz corregida
 
 @Component({
   selector: 'app-tabla-gestion-pedidos',
@@ -9,60 +11,68 @@ import { CommonModule } from '@angular/common';
   styleUrl: './tabla-gestion-pedidos.css',
 })
 export class TablaGestionPedidos implements OnInit {
-  pedidos: any[] = [];
+  private http = inject(HttpClient);
+  
+  // Usamos signals para que la tabla sea reactiva
+  public pedidos = signal<any[]>([]);
+  private readonly API_URL = 'http://localhost:8080/api';
 
   ngOnInit() {
     this.cargarPedidos();
   }
 
   cargarPedidos() {
-    const data = localStorage.getItem('pedidos_db');
-    this.pedidos = data ? JSON.parse(data) : [];
+    // Cambiar esto por tu endpoint de pedidos real en Spring Boot
+    this.http.get<any[]>(`${this.API_URL}/pedidos`).subscribe(res => {
+      this.pedidos.set(res);
+    });
   }
 
   /**
-   * ASIGNACIÓN AUTOMÁTICA INTELIGENTE
-   * Busca al técnico cuya especialidad coincida con el servicio del pedido
+   * LÓGICA DE ASIGNACIÓN AUTOMÁTICA
+   * Se dispara cuando el administrador presiona "Asignar" o cuando entra un pedido nuevo
    */
-  abrirAsignacion(pedido: any) {
-    // 1. Obtener los técnicos de la base de datos que ya tienes
-    const usuariosRaw = localStorage.getItem('usuarios_db') || '[]';
-    const todosLosUsuarios = JSON.parse(usuariosRaw);
-    const listaTecnicos = todosLosUsuarios.filter((u: any) => u.rol === 'tecnico');
+  ejecutarAsignacionAutomatica(pedido: any) {
+    // 1. Traer todos los usuarios para filtrar técnicos
+    this.http.get<Usuarios[]>(`${this.API_URL}/usuarios`).subscribe(usuarios => {
+      
+      const listaTecnicos = usuarios.filter(u => u.rol === 'ROLE_TECNICO');
 
-    // 2. Identificar qué servicio compró el cliente (tomamos el primero del carrito)
-    const categoriaServicio = pedido.items[0]?.categoria || pedido.items[0]?.nombre;
+      // 2. Obtener la categoría del primer servicio del carrito
+      const categoriaNecesaria = pedido.items[0]?.categoria;
 
-    // 3. Buscar un técnico que coincida con esa especialidad y esté disponible
-    // Nota: Usamos 'includes' o comparación directa según cómo guardes el nombre
-    let tecnicoAsignado = listaTecnicos.find((t: any) => 
-      t.disponible && (categoriaServicio.includes(t.especialidad) || t.especialidad.includes(categoriaServicio))
-    );
+      // 3. Buscar coincidencia exacta por especialidad
+      let tecnicoAsignado = listaTecnicos.find(t => 
+        t.especialidad === categoriaNecesaria
+      );
 
-    // 4. Si no encuentra uno por especialidad, asigna el primero disponible por defecto
-    if (!tecnicoAsignado) {
-      tecnicoAsignado = listaTecnicos.find((t: any) => t.disponible);
-    }
-
-    if (tecnicoAsignado) {
-      // 5. Inyectar los datos reales en el pedido
-      pedido.tecnico = tecnicoAsignado.nombre; // Esto es lo que lee Perfil.ts
-      pedido.tecnicoId = tecnicoAsignado.id;
-      pedido.estado = 'EN_PROCESO';
-
-      // 6. Guardar en pedidos_db
-      const pedidosBD = JSON.parse(localStorage.getItem('pedidos_db') || '[]');
-      const index = pedidosBD.findIndex((p: any) => p.id === pedido.id);
-
-      if (index !== -1) {
-        pedidosBD[index] = pedido;
-        localStorage.setItem('pedidos_db', JSON.stringify(pedidosBD));
-        
-        alert(`¡Asignación Automática! Técnico: ${tecnicoAsignado.nombre} (${tecnicoAsignado.especialidad})`);
-        this.cargarPedidos();
+      // 4. Fallback: Si no hay de esa especialidad, el primero de la lista (o manejar error)
+      if (!tecnicoAsignado) {
+        tecnicoAsignado = listaTecnicos[0]; 
       }
-    } else {
-      alert('No hay técnicos disponibles en este momento.');
-    }
+
+      if (tecnicoAsignado) {
+        this.confirmarAsignacion(pedido.id, tecnicoAsignado);
+      } else {
+        alert('No existen técnicos registrados para esta categoría.');
+      }
+    });
+  }
+
+  private confirmarAsignacion(pedidoId: number, tecnico: Usuarios) {
+    const payload = {
+      tecnicoId: tecnico.id,
+      tecnicoNombre: tecnico.nombreCompleto,
+      estado: 'EN_PROCESO'
+    };
+
+    // 5. Actualizar en la base de datos PostgreSQL a través de Spring Boot
+    this.http.put(`${this.API_URL}/pedidos/${pedidoId}/asignar`, payload).subscribe({
+      next: () => {
+        alert(`Asignación exitosa: ${tecnico.nombreCompleto}`);
+        this.cargarPedidos(); // Recargar tabla
+      },
+      error: () => alert('Error al actualizar el pedido en el servidor')
+    });
   }
 }

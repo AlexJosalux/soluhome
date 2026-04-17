@@ -6,10 +6,10 @@
   
   <div class="absolute inset-0 bg-[#1e3a5a]/80 z-10"></div>
 
-  <div class="w-full max-w-[740px] h-auto md:h-[480px] bg-white rounded-[1.5rem] shadow-2xl flex flex-col md:flex-row overflow-hidden border border-white/20 relative z-20 backdrop-blur-sm">
+  <div class="w-full max-w-[740px] h-auto md:h-[520px] bg-white rounded-[1.5rem] shadow-2xl flex flex-col md:flex-row overflow-hidden border border-white/20 relative z-20 backdrop-blur-sm">
     
     <div class="w-full md:w-[55%] p-5 md:p-6 flex flex-col bg-white order-2 md:order-1 justify-center">
-      <div class="max-w-[320px] mx-auto w-full">
+      <div class="max-w-[340px] mx-auto w-full">
         
         <div class="flex justify-center mt-0 mb-2">
           <img src="/images/logosolu.png" alt="SoluHome Logo" class="w-32 md:w-40 drop-shadow-sm transition-transform hover:scale-105 duration-300">
@@ -20,12 +20,18 @@
           <p class="text-slate-400 text-[8px] font-bold mt-1 uppercase tracking-[0.2em]">Elige tu perfil</p>
         </div>
 
+        @if (errorMessage()) {
+          <div class="mb-2 p-2 bg-red-50 border-l-4 border-red-500 text-red-700 text-[9px] font-bold uppercase">
+            {{ errorMessage() }}
+          </div>
+        }
+
         <form (ngSubmit)="registrar()" #registroForm="ngForm" class="space-y-2">
           
           <div class="grid grid-cols-2 gap-3 mb-3">
-            <button type="button" (click)="setRol('cliente')"
+            <button type="button" (click)="setRol('ROLE_CLIENTE')"
               class="flex items-center bg-white border border-[#1e3a5a]/50 rounded-xl overflow-hidden shadow-sm transition-all relative h-11 md:h-12"
-              [ngClass]="nuevoUsuario.rol === 'cliente' ? 'ring-2 ring-[#f39200] border-transparent shadow-lg shadow-[#f39200]/10' : ''">
+              [ngClass]="nuevoUsuario.rol === 'ROLE_CLIENTE' ? 'ring-2 ring-[#f39200] border-transparent shadow-lg shadow-[#f39200]/10' : ''">
               
               <div class="w-8 md:w-10 h-full flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="#f39200" stroke-width="1.8">
@@ -38,9 +44,9 @@
               </div>
             </button>
 
-            <button type="button" (click)="setRol('tecnico')"
+            <button type="button" (click)="setRol('ROLE_TECNICO')"
               class="flex items-center bg-white border border-[#1e3a5a]/50 rounded-xl overflow-hidden shadow-sm transition-all relative h-11 md:h-12"
-              [ngClass]="nuevoUsuario.rol === 'tecnico' ? 'ring-2 ring-[#f39200] border-transparent shadow-lg shadow-[#f39200]/10' : ''">
+              [ngClass]="nuevoUsuario.rol === 'ROLE_TECNICO' ? 'ring-2 ring-[#f39200] border-transparent shadow-lg shadow-[#f39200]/10' : ''">
               
               <div class="w-8 md:w-10 h-full flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="#f39200" stroke-width="1.8">
@@ -54,21 +60,32 @@
             </button>
           </div>
 
-          <div class="grid grid-cols-2 gap-2">
-            <input type="text" name="nombre" [(ngModel)]="nuevoUsuario.nombre" placeholder="NOMBRE" required
+          <div class="space-y-2">
+            <input type="text" name="nombreCompleto" [(ngModel)]="nuevoUsuario.nombreCompleto" placeholder="NOMBRE COMPLETO" required
               class="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg focus:border-[#f39200] focus:bg-white outline-none text-[10px] font-bold transition-all">
-            <input type="text" name="apellido" [(ngModel)]="nuevoUsuario.apellido" placeholder="APELLIDO" required
-              class="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg focus:border-[#f39200] focus:bg-white outline-none text-[10px] font-bold transition-all">
+            
+            <div class="grid grid-cols-2 gap-2">
+              <input type="email" name="email" [(ngModel)]="nuevoUsuario.email" placeholder="CORREO ELECTRÓNICO" required
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg focus:border-[#f39200] focus:bg-white outline-none text-[10px] font-bold">
+              
+              <input type="tel" name="telefono" [(ngModel)]="nuevoUsuario.telefono" placeholder="TELÉFONO" required
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg focus:border-[#f39200] focus:bg-white outline-none text-[10px] font-bold">
+            </div>
+
+            <input type="text" name="direccion" [(ngModel)]="nuevoUsuario.direccion" placeholder="DIRECCIÓN DE DOMICILIO" required
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg focus:border-[#f39200] focus:bg-white outline-none text-[10px] font-bold">
+            
+            @if (nuevoUsuario.rol === 'ROLE_TECNICO') {
+              <input type="text" name="especialidad" [(ngModel)]="nuevoUsuario.especialidad" placeholder="ESPECIALIDAD (Ejem: Plomería)" required
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg focus:border-[#f39200] focus:bg-white outline-none text-[10px] font-bold animate-fade-in">
+            }
+
+            <input type="password" name="password" [(ngModel)]="nuevoUsuario.password" placeholder="CONTRASEÑA" required
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg focus:border-[#f39200] focus:bg-white outline-none text-[10px] font-bold">
           </div>
-          
-          <input type="email" name="email" [(ngModel)]="nuevoUsuario.email" placeholder="CORREO ELECTRÓNICO" required
-            class="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg focus:border-[#f39200] focus:bg-white outline-none text-[10px] font-bold">
-          
-          <input type="password" name="password" [(ngModel)]="nuevoUsuario.password" placeholder="CONTRASEÑA" required
-            class="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg focus:border-[#f39200] focus:bg-white outline-none text-[10px] font-bold">
 
           <button type="submit" [disabled]="cargando()"
-            class="w-full py-3 bg-[#1e3a5a] hover:bg-[#15293f] text-white text-[10px] font-black rounded-xl transition-all active:scale-95 mt-1 uppercase italic tracking-widest shadow-lg shadow-[#1e3a5a]/30 border-none">
+            class="w-full py-3 bg-[#1e3a5a] hover:bg-[#15293f] text-white text-[10px] font-black rounded-xl transition-all active:scale-95 mt-2 uppercase italic tracking-widest shadow-lg shadow-[#1e3a5a]/30 border-none disabled:opacity-50">
             {{ cargando() ? 'PROCESANDO...' : 'CREAR CUENTA' }}
           </button>
         </form>

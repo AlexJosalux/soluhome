@@ -1,50 +1,76 @@
-import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
-import { Usuario } from '../models/usuario';
+import { inject, Injectable, signal } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, catchError, throwError } from 'rxjs';
+import { Usuarios } from '../models/usuario'; // Usando tu modelo singular
+import { ApiResponse } from './auth-service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class UsuarioService {
+export class UsuariosService {
+  private readonly API_URL = 'http://localhost:8080/api/usuarios';
   private http = inject(HttpClient);
 
-  private API_USUARIOS = 'https://soluhome-2a5d9-default-rtdb.firebaseio.com/';
-
-
-  //Metodo GET
-  getUsuarios(): Observable<Usuario[]> {
-    return this.http.get<{ [key: string]: Usuario }>(`${this.API_USUARIOS}/users.json`).pipe(
-      map(response => {
-        if (!response) {
-          return [];
-        }
-        return Object.keys(response).map(id => {
-          const usuarioConId = { ...response[id], id: id };
-          return usuarioConId
-        })
-      })
-    )
-  }
-
-  //Metodo POST
-  postUsuario(usuario: Usuario):Observable<Usuario>{
-    return this.http.post<Usuario>(`${this.API_USUARIOS}/users.json`, usuario);
-  }
-
-  //Metodo PUT
-  putUsuario(id: string, usuario: Usuario): Observable<Usuario>{
-    return this.http.put<Usuario>(`${this.API_USUARIOS}/users/${id}.json`, usuario);
-  }
-
-  //Metodo PUT
-  deleteUsuario(id: string): Observable<Usuario>{
-    return this.http.delete<Usuario>(`${this.API_USUARIOS}/users/${id}.json`);
-  }
-  // Agrega este método dentro de tu UsuarioService
-getUsuarioById(id: string): Observable<Usuario> {
-  return this.http.get<Usuario>(`${this.API_USUARIOS}/users/${id}.json`).pipe(
-    map(res => ({ ...res, id }))
+  // Signal para el usuario que tiene la sesión activa actualmente
+  usuarioAutenticado = signal<Usuarios | null>(
+    JSON.parse(localStorage.getItem('soluhome_user') || 'null')
   );
-}
+
+  /**
+   * Obtener todos los usuarios (Solo para ADMIN)
+   */
+  getUsuarios(): Observable<ApiResponse<Usuarios[]>> {
+    return this.http.get<ApiResponse<Usuarios[]>>(this.API_URL).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Obtener lista de Técnicos (Útil para asignar a servicios de SoluHome)
+   */
+  getTecnicos(): Observable<ApiResponse<Usuarios[]>> {
+    return this.http.get<ApiResponse<Usuarios[]>>(`${this.API_URL}/rol/TECNICO`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Obtener perfil detallado por ID
+   */
+  getUsuarioPorId(id: number): Observable<ApiResponse<Usuarios>> {
+    return this.http.get<ApiResponse<Usuarios>>(`${this.API_URL}/${id}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Actualizar datos del perfil (Dirección, teléfono, etc.)
+   */
+  actualizarPerfil(id: number, datos: Partial<Usuarios>): Observable<ApiResponse<Usuarios>> {
+    return this.http.put<ApiResponse<Usuarios>>(`${this.API_URL}/${id}`, datos).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Eliminar cuenta de usuario
+   */
+  eliminarUsuario(id: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.API_URL}/${id}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Manejo de errores adaptado
+   */
+  private handleError(error: HttpErrorResponse) {
+    let mensaje = 'Error al gestionar usuarios';
+    if (error.error?.message) {
+      mensaje = error.error.message;
+    } else if (error.status === 403) {
+      mensaje = 'No tienes permisos para realizar esta acción';
+    }
+    return throwError(() => new Error(mensaje));
+  }
 }

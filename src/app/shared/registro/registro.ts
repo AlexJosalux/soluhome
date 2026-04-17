@@ -1,71 +1,74 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router, RouterModule } from '@angular/router'; // Importamos RouterModule para el routerLink del HTML
+import { Router, RouterLink } from '@angular/router'; 
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { UsuarioService } from '../../services/usuario-service';
 import { AuthService } from '../../services/auth-service';
-import { Usuario } from '../../models/usuario';
+import { Usuarios } from '../../models/usuario';
 
 @Component({
   selector: 'app-registro',
   standalone: true,
-  imports: [FormsModule, CommonModule, RouterModule], // Agregamos RouterModule aquí
+  imports: [FormsModule, CommonModule, RouterLink], 
   templateUrl: './registro.html',
-  // styleUrls: ['./registro.css'] // Eliminamos la referencia a CSS si estamos usando Tailwind
+  styleUrl: './registro.css'
 })
 export class Registro {
-  private readonly usuarioService = inject(UsuarioService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  // Estado de carga para el feedback visual en el botón
   public cargando = signal<boolean>(false);
+  public errorMessage = signal<string>('');
 
-  // Objeto vinculado al formulario mediante [(ngModel)]
-  public nuevoUsuario: Usuario = {
-    nombre: '',
-    apellido: '',
+  public nuevoUsuario: Usuarios = {
+    nombreCompleto: '',
     email: '',
-    password: '',
-    rol: 'cliente' // Valor por defecto
+    password: '', // Este es el que usa el HTML
+    telefono: '',
+    direccion: '',
+    rol: 'ROLE_CLIENTE',
+    especialidad: ''
   };
 
-  /**
-   * Método para establecer el rol visualmente desde el asistente
-   */
-  public setRol(rol: 'cliente' | 'tecnico') {
+  setRol(rol: 'ROLE_CLIENTE' | 'ROLE_TECNICO') {
     this.nuevoUsuario.rol = rol;
   }
 
-  /**
-   * Método para registrar al usuario en la base de datos de itelligent
-   */
   registrar() {
-    // 1. Validación básica de campos obligatorios
-    if (!this.nuevoUsuario.email || !this.nuevoUsuario.password || !this.nuevoUsuario.nombre || !this.nuevoUsuario.apellido) {
-      alert('Por favor, completa todos los campos para crear tu perfil SoluHome.');
+    this.errorMessage.set('');
+    
+    // LOGS DE DEPURACIÓN
+    console.log('--- Datos capturados ---');
+    console.log('Nombre:', this.nuevoUsuario.nombreCompleto);
+    console.log('Email:', this.nuevoUsuario.email);
+    console.log('Pass:', this.nuevoUsuario.password);
+
+    // VALIDACIÓN: Verificamos que nada esté vacío o sean solo espacios
+    if (!this.nuevoUsuario.nombreCompleto?.trim() || 
+        !this.nuevoUsuario.email?.trim() || 
+        !this.nuevoUsuario.password?.trim()) {
+      this.errorMessage.set('Por favor, completa los campos obligatorios.');
+      console.warn('Validación fallida: existen campos vacíos en el objeto');
       return;
     }
 
-    // 2. Activamos el estado de carga
     this.cargando.set(true);
 
-    // 3. Enviamos los datos a la base de datos de PostgreSQL a través del servicio
-    this.usuarioService.postUsuario(this.nuevoUsuario).subscribe({
+    this.authService.register(this.nuevoUsuario).subscribe({
       next: (res) => {
-        // Detenemos el estado de carga
         this.cargando.set(false);
-        
-        // 4. Mostramos la alerta de confirmación
-        alert('¡Cuenta de SoluHome creada con éxito! Por favor, inicia sesión para continuar.');
-        
-        // 5. Redirección al componente de Login
-        this.router.navigate(['/login']);
+        if (res.success) {
+          alert('¡Cuenta de SoluHome creada con éxito!');
+          this.router.navigate(['/login']);
+        } else {
+          this.errorMessage.set(res.message || 'Error al crear la cuenta.');
+        }
       },
       error: (err) => {
-        console.error('Error en el registro de SoluHome:', err);
-        alert('Hubo un error al conectar con el servidor. Inténtalo de nuevo.');
         this.cargando.set(false);
+        // Si el backend responde (ej. correo ya existe), mostramos ese mensaje
+        const msg = err.error?.message || 'Error de conexión con el servidor.';
+        this.errorMessage.set(msg);
+        console.error('Error en registro:', err);
       }
     });
   }
